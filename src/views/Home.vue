@@ -22,20 +22,24 @@ export default {
 <style scoped lang="less">
 .login {
   min-width: 100%;
-  height: 40px;
+  min-height: 100vh; /* 使div至少有视窗的高度 */
   position: relative;
-  display:flex;
-  justify-content:flex-end;
-
+  display: flex;
+  justify-content: flex-end;
+  align-items: center; /* 新增：垂直居中对齐内容 */
+  flex-direction: column; /* 新增：让内容垂直排列 */
+  background-image: url('../background/bg.jpg'); /* 设置背景图片 */
+  background-size: cover; /* 背景图片覆盖整个div */
+  background-position: center; /* 背景图片居中显示 */
+}
+.lin-login, .but-register {
+  position: absolute; /* 调整为绝对定位 */
+  top: 10px; /* 根据实际情况调整按钮位置 */
 }
 .lin-login {
-  position: relative;
-  right: 120px;
-  top: 10px;
+  right: 120px; /* 根据实际情况调整按钮位置 */
 }
 .but-register {
-  position: relative;
-  right: 90px;
-  top: 10px;
+  right: 20px; /* 根据实际情况调整按钮位置 */
 }
 </style>

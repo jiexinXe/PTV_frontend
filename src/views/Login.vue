@@ -14,7 +14,7 @@
           </el-form-item>
           <div class="denglu-btn">
             <el-button type="primary" @click="handlelogin">登录</el-button>
-            <el-button>取消</el-button>
+            <el-button @click="handleCancel">取消</el-button> <!-- 已更新点击事件处理器 -->
           </div>
         </el-form>
       </div>
@@ -23,6 +23,7 @@
     </div>
   </div>
 </template>
+
 <script>
   import axios from "axios";
 
@@ -37,25 +38,25 @@
     },
     methods: {
       handlelogin() {
-        const params={
-          username:this.form.username,
-          password:this.form.password
-        }
-        const res = axios.post('http://localhost:8082/login',params)
-        console.log('res',res)
+        const params = {
+          username: this.form.username,
+          password: this.form.password
+        };
+        const res = axios.post('http://localhost:8082/login', params);
+        console.log('res', res);
 
-        // 设置回调函数，接收返回的响应对象
-        // 异步操作成功时，执行的回调函数
-        res.then(response=>{
-          console.log('请求成功:')
-          console.log('respnse',response)
-        })
-        // 异步操作失败时，执行的回调函数
-        res.catch(error=>{
-          console.log('请求失败:')
-          // console.log('error:',error)
-          console.log('请求失败响应对象获取',error.response)
-        })
+        res.then(response => {
+          console.log('请求成功:');
+          console.log('response', response);
+        });
+
+        res.catch(error => {
+          console.log('请求失败:');
+          console.log('请求失败响应对象获取', error.response);
+        });
+      },
+      handleCancel() {
+        this.$router.push('/'); 
       }
     }
   }
