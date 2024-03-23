@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Order from '../views/order.vue'
+import OrderManagement from '../views/OrderManagement.vue'
 import Header from '../components/header.vue'
 Vue.use(VueRouter)
 
@@ -11,6 +12,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/OrderManagement',
+    name: 'OrderManagement',
+    component: OrderManagement
   },
     {
      path: '/order',
