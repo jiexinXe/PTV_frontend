@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Order from '../views/order.vue'
+import User from '../views/user.vue'
 import Header from '../components/header.vue'
 Vue.use(VueRouter)
 
@@ -17,6 +18,11 @@ const routes = [
      name: 'Order',
      component: Order
     },
+    {
+      path: '/user',
+      name: 'User',
+      component: User
+     },
   {
     path: '/',
     name: 'Home',
