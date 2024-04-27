@@ -3,9 +3,11 @@ import VueRouter from 'vue-router'
 import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Order from '../views/order.vue'
+import OrderManagement from '../views/OrderManagement.vue'
 
 import Header from '../components/header.vue'
 import AddCargo from '../views/addCargo.vue'
+import User from "@/views/user.vue";
 
 Vue.use(VueRouter)
 
