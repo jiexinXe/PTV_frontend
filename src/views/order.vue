@@ -1,6 +1,7 @@
 <template>
   <div>
     <my_header></my_header>
+    <my_side></my_side>>
   </div>
 </template>
 
