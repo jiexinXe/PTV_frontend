@@ -5,6 +5,8 @@ import Login from '../views/Login.vue'
 import Order from '../views/order.vue'
 import User from '../views/user.vue'
 import Header from '../components/header.vue'
+import AddCargo from '../views/addCargo.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -22,6 +24,11 @@ const routes = [
       path: '/user',
       name: 'User',
       component: User
+     },
+     {
+      path: '/addCargo',
+      name: 'addCargo',
+      component: AddCargo
      },
   {
     path: '/',
