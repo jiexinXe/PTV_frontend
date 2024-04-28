@@ -73,29 +73,47 @@ button:hover {
     },
     methods: {
  
-    addCargo() {
-        axios.post('http://localhost:8082/cargo/add', {
-    name: this.cargo.name,
-    category: this.cargo.category,
-    num: this.cargo.num,
-    price: this.cargo.price,
-    supplier: this.cargo.supplier,
-    enterTime: new Date().toISOString(),
-    location: this.cargo.location
-})
+      addCargo() {
+    // 验证输入是否为空
+    if (!this.cargo.name || !this.cargo.category || !this.cargo.num || !this.cargo.price || !this.cargo.supplier || !this.cargo.location) {
+        this.$message({
+            message: '请填写完整信息！',
+            type: 'warning'
+        });
+        return;
+    }
 
+    // 验证货物数量和单价是否为数字
+    if (isNaN(this.cargo.num) || isNaN(this.cargo.price)) {
+        this.$message({
+            message: '货物数量和单价必须为数字！',
+            type: 'warning'
+        });
+        return;
+    }
+
+    // 验证成功，发送请求
+    axios.post('http://localhost:8082/cargo/add', {
+        name: this.cargo.name,
+        category: this.cargo.category,
+        num: this.cargo.num,
+        price: this.cargo.price,
+        supplier: this.cargo.supplier,
+        enterTime: new Date().toISOString(),
+        location: this.cargo.location
+    })
     .then(response => {
         console.log('Add cargo:', response.data.msg);
         this.$message({
-        message: '添加成功！',
-        type: 'success'
-    });
-
+            message: '添加成功！',
+            type: 'success'
+        });
     })
     .catch(error => {
         console.error('Error saving profile:', error);
     });
 }
+
 
 
     }
