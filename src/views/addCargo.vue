@@ -33,6 +33,7 @@ export default {
         price: "",
         supplier: "",
         location: "",
+        userid: "2"
       },
       categories: [],
       selectedCategoryId: null,
@@ -79,6 +80,7 @@ export default {
           supplier: this.cargo.supplier,
           enterTime: new Date().toISOString(),
           location: this.cargo.location,
+          userid:this.cargo.userid
         })
         .then(response => {
           console.log("Add cargo:", response.data.msg);
