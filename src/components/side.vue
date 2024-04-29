@@ -25,16 +25,30 @@
 </template>
 
 <script>
+import { ref } from "vue";
+import {useRouter, useRoute} from "vue-router/composables";
+
 export default {
-  data() {
-    return {
-      activeIndex: '1'
-    };
-  },
-  methods: {
-    handleSelect(key, keyPath) {
+  setup() {
+    const router = useRouter();
+    const route = useRoute();  // 获取当前路由对象
+    const activeIndex = ref('1');
+
+    const handleSelect = (key, keyPath) => {
       console.log(key, keyPath);
-    }
+      // 使用route.path代替this.$route.path
+      if (key === '1-2' && route.path !== '/OrderManagement') {
+        router.push('/OrderManagement');
+      }
+      if (key === '2-1' && route.path !== '/CargoManagement') {
+        router.push('/CargoManagement');  // 使用router.push代替this.$router.push
+      }
+    };
+
+    return {
+      activeIndex,
+      handleSelect
+    };
   }
 }
 </script>
