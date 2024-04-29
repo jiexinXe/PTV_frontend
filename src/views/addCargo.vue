@@ -73,7 +73,7 @@ export default {
       // 验证成功，发送请求
       axios.post("http://localhost:8082/cargo/add", {
           name: this.cargo.name,
-          categoryId: this.selectedCategoryId,
+          category: this.selectedCategoryId,
           num: this.cargo.num,
           price: this.cargo.price,
           supplier: this.cargo.supplier,
