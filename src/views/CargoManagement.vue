@@ -2,7 +2,10 @@
   <div class="cargo-management">
     <Layout>
       <h2 class="cargo-list-title">货物列表</h2>
-      <button class="add-cargo-btn" @click="goToAddCargo">新增货物</button>
+      <div class="actions">
+        <button class="add-cargo-btn" @click="goToAddCargo">新增货物</button>
+        <input type="text" v-model="searchQuery" placeholder="搜索货物名称..." class="search-input">
+      </div>
       <div class="cargos-list">
         <table>
           <thead>
@@ -15,7 +18,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="cargo in cargos" :key="cargo.cid">
+          <tr v-for="cargo in filteredCargos" :key="cargo.cid">
             <td>{{ cargo.cid }}</td>
             <td>{{ cargo.name }}</td>
             <td>{{ cargo.num }}</td>
@@ -23,6 +26,8 @@
             <td>
               <button @click="editCargo(cargo)" class="edit-btn">编辑</button>
               <button @click="deleteCargo(cargo.cid, cargo.num)" class="delete-btn">删除</button>
+              <button @click="decreaseStock(cargo.cid, cargo.outNum)" class="out-btn">出库</button>
+              <input type="number" v-model="cargo.outNum" placeholder="数量" class="out-input" min="1" :max="cargo.num">
             </td>
           </tr>
           </tbody>
@@ -64,7 +69,7 @@
 <script>
 import axios from 'axios';
 import Layout from "@/components/layout.vue";
-import { reactive, ref, onMounted } from 'vue';
+import {reactive, ref, onMounted, computed} from 'vue';
 import {useRouter} from "vue-router/composables";
 
 export default {
@@ -75,6 +80,7 @@ export default {
     const showModal = ref(false);
     const categories = ref([]);
     const selectedCategoryId = ref(null);
+    const searchQuery = ref('');
     const editingCargo = reactive({
       cid: '',
       name: '',
@@ -116,9 +122,9 @@ export default {
 
     const deleteCargo = async (cid, num) => {
       try {
-        const response = await axios.delete(`http://localhost:8082/cargo/delete?cid=${cid}&num=${num}`);
+        const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
         if (response.data.code === 200) {
-          fetchCargos(); // Reload the list
+          fetchCargos();
         } else {
           console.error('Failed to delete cargo:', response.data.message);
         }
@@ -128,9 +134,42 @@ export default {
     };
 
     const updateCargo = async () => {
-      // Implement cargo update logic here
-      console.log('Updating cargo:', editingCargo);
-      showModal.value = false;
+      try {
+        const response = await axios.post('http://localhost:8082/cargo/update', editingCargo);
+        if (response.data.code === 200) {
+          console.log('Cargo updated successfully:', response.data);
+          fetchCargos(); // Reload the cargos list to reflect the update
+          showModal.value = false; // Close the modal after successful update
+        } else {
+          console.error('Failed to update cargo:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error updating cargo:', error);
+      }
+    };
+
+    const filteredCargos = computed(() => {
+      return cargos.value.filter(cargo =>
+          cargo.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    });
+
+    const decreaseStock = async (cid, num) => {
+      if (num <= 0 || num === '') {
+        alert('请输入有效数量');
+        return;
+      }
+      try {
+        const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+        if (response.data.code === 200) {
+          alert('出库成功');
+          fetchCargos(); // 重新获取数据以更新视图
+        } else {
+          console.error('出库失败:', response.data.message);
+        }
+      } catch (error) {
+        console.error('出库错误:', error);
+      }
     };
 
     return {
@@ -142,7 +181,10 @@ export default {
       goToAddCargo,
       editCargo,
       deleteCargo,
-      updateCargo
+      updateCargo,
+      searchQuery,
+      filteredCargos,
+      decreaseStock,
     };
   }
 }
@@ -157,15 +199,34 @@ export default {
   margin-bottom: 15px;
 }
 
-.add-cargo-btn {
-  margin-bottom: 20px;
-  padding: 10px 20px;
+.actions {
+  display: flex;
+  align-items: center; /* 确保元素垂直居中 */
+  margin-bottom: 20px; /* 与表格的距离 */
+}
+
+.add-cargo-btn, .search-input {
+  height: 36px; /* 设置按钮和输入框的高度相同 */
+  padding: 0 12px;
+  border: 1px solid #ccc;
   background-color: #4CAF50;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  display: block;
+}
+
+.add-cargo-btn {
+  border-color: #4CAF50; /* 保持按钮边框颜色一致 */
+  width: 100px; /* 设置搜索框的宽度 */
+}
+
+.search-input {
+  width: 150px; /* 设置搜索框的宽度 */
+  margin-left: 20px; /* 搜索框与按钮之间的间距 */
+  padding: 0 10px;
+  background-color: white; /* 输入框的背景颜色 */
+  color: black; /* 输入文字颜色 */
+  border-color: #ccc; /* 边框颜色 */
 }
 
 .cargos-list table {
@@ -222,4 +283,21 @@ export default {
   cursor: pointer;
 }
 
+.out-btn {
+  background-color: #007BFF;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.out-input {
+  width: 60px;
+  margin-right: 5px;
+  padding: 5px;
+  text-align: center;
+}
+
 </style>
+
