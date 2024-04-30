@@ -74,6 +74,15 @@ export default {
         return;
       }
 
+      // 验证货物数量和单价是否为正数
+      if (parseFloat(this.cargo.num) <= 0 || parseFloat(this.cargo.price) <= 0) {
+        this.$message({
+          message: "货物数量和单价必须为正数！",
+          type: "warning",
+        });
+        return;
+      }
+
       // 验证成功，发送请求
       axios.post("http://localhost:8082/cargo/add", {
           name: this.cargo.name,

@@ -165,6 +165,7 @@ export default {
           alert('出库成功');
           fetchCargos(); // 重新获取数据以更新视图
         } else {
+          alert('出库失败')
           console.error('出库失败:', response.data.message);
         }
       } catch (error) {
