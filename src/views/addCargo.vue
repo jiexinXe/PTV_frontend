@@ -1,6 +1,6 @@
 <template>
   <div>
-    <my_header></my_header>
+    <Layout>
     <h1>货物信息</h1>
     <form @submit.prevent="addCargo" style="max-width: 400px; margin: 0 auto;">
       <label for="name">货物名称:</label>
@@ -19,12 +19,15 @@
       <input type="text" id="location" v-model="cargo.location" style="width: 100%;">
       <button type="submit" style="width: 100%;">添加货物</button>
     </form>
+    </Layout>>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Layout from "@/components/layout.vue";
 export default {
+  components: {Layout},
   data() {
     return {
       cargo: {

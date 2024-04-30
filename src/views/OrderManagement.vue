@@ -101,7 +101,7 @@ export default {
 
 <style>
 .order-management {
-  padding: 20px;
+  padding: 0px;
 }
 
 .order-list-title {

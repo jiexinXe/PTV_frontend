@@ -192,7 +192,7 @@ export default {
 
 <style>
 .cargo-management {
-  padding: 20px;
+  padding: 0px;
 }
 
 .cargo-list-title {
