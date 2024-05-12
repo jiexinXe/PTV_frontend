@@ -121,17 +121,23 @@ export default {
     };
 
     const deleteCargo = async (cid, num) => {
-      try {
-        const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
-        if (response.data.code === 200) {
-          fetchCargos();
-        } else {
-          console.error('Failed to delete cargo:', response.data.message);
+      if (confirm('确定要删除这条货物信息吗？')) {
+        try {
+          const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+          if (response.data.code === 200) {
+            fetchCargos();
+            alert('删除成功');
+          } else {
+            console.error('Failed to delete cargo:', response.data.message);
+            alert('删除失败');
+          }
+        } catch (error) {
+          console.error('Error deleting cargo:', error);
+          alert('删除时出现错误');
         }
-      } catch (error) {
-        console.error('Error deleting cargo:', error);
       }
     };
+
 
     const updateCargo = async () => {
       try {
@@ -159,19 +165,23 @@ export default {
         alert('请输入有效数量');
         return;
       }
-      try {
-        const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
-        if (response.data.code === 200) {
-          alert('出库成功');
-          fetchCargos(); // 重新获取数据以更新视图
-        } else {
-          alert('出库失败')
-          console.error('出库失败:', response.data.message);
+      if (confirm('确定要执行出库操作吗？')) {
+        try {
+          const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+          if (response.data.code === 200) {
+            fetchCargos(); // 重新获取数据以更新视图
+            alert('出库成功');
+          } else {
+            alert('出库失败');
+            console.error('出库失败:', response.data.message);
+          }
+        } catch (error) {
+          console.error('出库错误:', error);
+          alert('出库时出现错误');
         }
-      } catch (error) {
-        console.error('出库错误:', error);
       }
     };
+
 
     return {
       cargos,
