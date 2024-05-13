@@ -1,54 +1,49 @@
 <template>
   <div>
-    <el-menu
-        :default-active="activeIndex2"
-        class="el-menu-demo"
-        mode="horizontal"
-        @select="handleSelect"
-        background-color="#545c64"
-        text-color="#fff"
-        active-text-color="#ffd04b"
-    >
-      <el-submenu index="1">
-        <template slot="title">订单中心</template>
-        <el-menu-item index="1-1">添加订单</el-menu-item>
-        <el-menu-item index="1-2">订单列表</el-menu-item>
-      </el-submenu>
-      <el-submenu index="2">
-        <template slot="title">仓库中心</template>
-        <el-menu-item index="2-1">货物列表</el-menu-item>
-        <el-menu-item index="2-2">我的仓库</el-menu-item>
-      </el-submenu>
-      <div class="user_box">
-      </div>
-    </el-menu>
+    <el-row class="top-bar" type="flex" justify="space-between" align="middle">
+      <!-- Logo 区域 -->
+      <el-col :span="4">
+        <div class="logo">Your Logo</div>
+      </el-col>
+      <!-- 个人信息区域 -->
+      <el-col :span="4" :offset="16">
+        <div class="user_box">
+          <!-- 个人信息图标或名字 -->
+          <el-icon><User /></el-icon>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
 export default {
   data() {
-    return {
-      activeIndex: '1',
-      activeIndex2: '1'
-    };
-  },
-  methods: {
-    handleSelect(key, keyPath) {
-      console.log(key, keyPath);
-    }
+    return {};
   }
 }
 </script>
 
 <style lang="less">
-.user_box{
+.top-bar {
+  padding: 10px;
+  background-color: #545c64;
+  color: #fff;
+}
+
+.logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.user_box {
   position: relative;
   background-color: #42b983;
   width: 40px;
   height: 40px;
-  left: 95%;
-  top: 10px;
-  border-radius: 100px
+  border-radius: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
