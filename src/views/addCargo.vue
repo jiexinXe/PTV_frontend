@@ -1,31 +1,34 @@
 <template>
   <div>
     <Layout>
-    <h1>货物信息</h1>
-    <form @submit.prevent="addCargo" style="max-width: 400px; margin: 0 auto;">
-      <label for="name">货物名称:</label>
-      <input type="text" id="name" v-model="cargo.name" style="width: 100%;">
-      <label for="category">货物类别:</label>
-      <select v-model="selectedCategoryId" style="width: 100%;">
-        <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId">{{ category.categoryName }}</option>
-      </select>
-      <label for="num">货物数量:</label>
-      <input type="text" id="num" v-model="cargo.num" style="width: 100%;">
-      <label for="price">货物单价:</label>
-      <input type="text" id="price" v-model="cargo.price" style="width: 100%;">
-      <label for="supplier">供应商名称:</label>
-      <input type="text" id="supplier" v-model="cargo.supplier" style="width: 100%;">
-      <label for="location">入库位置:</label>
-      <input type="text" id="location" v-model="cargo.location" style="width: 100%;">
-      <button type="submit" style="width: 100%;">添加货物</button>
-    </form>
-    </Layout>>
+      <h1>货物信息</h1>
+      <form @submit.prevent="addCargo" style="max-width: 400px; margin: 0 auto;">
+        <label htmlFor="name">货物名称:</label>
+        <input type="text" id="name" v-model="cargo.name" style="width: 100%;">
+        <label htmlFor="category">货物类别:</label>
+        <select v-model="selectedCategoryId" style="width: 100%;">
+          <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId">
+            {{ category.categoryName }}
+          </option>
+        </select>
+        <label htmlFor="num">货物数量:</label>
+        <input type="text" id="num" v-model="cargo.num" style="width: 100%;">
+        <label htmlFor="price">货物单价:</label>
+        <input type="text" id="price" v-model="cargo.price" style="width: 100%;">
+        <label htmlFor="supplier">供应商名称:</label>
+        <input type="text" id="supplier" v-model="cargo.supplier" style="width: 100%;">
+        <label htmlFor="location">入库位置:</label>
+        <input type="text" id="location" v-model="cargo.location" style="width: 100%;">
+        <button type="submit" style="width: 100%;">添加货物</button>
+      </form>
+    </Layout>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import service from "../utils/axios"; // 引入带有拦截器的axios实例
 import Layout from "@/components/layout.vue";
+
 export default {
   components: {Layout},
   data() {
@@ -47,13 +50,13 @@ export default {
   },
   methods: {
     fetchCategories() {
-      axios.get("http://localhost:8082/category/all")
-        .then(response => {
-          this.categories = response.data;
-        })
-        .catch(error => {
-          console.error("Error fetching categories:", error);
-        });
+      service.get("http://localhost:8082/category/all")
+          .then(response => {
+            this.categories = response.data;
+          })
+          .catch(error => {
+            console.error("Error fetching categories:", error);
+          });
     },
     addCargo() {
       // 验证输入是否为空
@@ -84,26 +87,26 @@ export default {
       }
 
       // 验证成功，发送请求
-      axios.post("http://localhost:8082/cargo/add", {
-          name: this.cargo.name,
-          category: this.selectedCategoryId,
-          num: this.cargo.num,
-          price: this.cargo.price,
-          supplier: this.cargo.supplier,
-          enterTime: new Date().toISOString(),
-          location: this.cargo.location,
-          userid:this.cargo.userid
-        })
-        .then(response => {
-          console.log("Add cargo:", response.data.msg);
-          this.$message({
-            message: "添加成功！",
-            type: "success",
+      service.post("http://localhost:8082/cargo/add", {
+        name: this.cargo.name,
+        category: this.selectedCategoryId,
+        num: this.cargo.num,
+        price: this.cargo.price,
+        supplier: this.cargo.supplier,
+        enterTime: new Date().toISOString(),
+        location: this.cargo.location,
+        userid: this.cargo.userid
+      })
+          .then(response => {
+            console.log("Add cargo:", response.data.msg);
+            this.$message({
+              message: "添加成功！",
+              type: "success",
+            });
+          })
+          .catch(error => {
+            console.error("Error saving profile:", error);
           });
-        })
-        .catch(error => {
-          console.error("Error saving profile:", error);
-        });
     },
   },
 };

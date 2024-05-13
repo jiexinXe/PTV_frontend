@@ -64,13 +64,11 @@
   </div>
 </template>
 
-
-
 <script>
-import axios from 'axios';
+import service from '../utils/axios'; // 引入带有拦截器的axios实例
 import Layout from "@/components/layout.vue";
-import {reactive, ref, onMounted, computed} from 'vue';
-import {useRouter} from "vue-router/composables";
+import { reactive, ref, onMounted, computed } from 'vue';
+import { useRouter } from "vue-router/composables";
 
 export default {
   components: { Layout },
@@ -92,8 +90,7 @@ export default {
 
     const fetchCargos = async () => {
       try {
-        console.log(localStorage.getItem("token"))
-        const response = await axios.get('http://localhost:8082/cargo/list/userid?userid=2');
+        const response = await service.get('http://localhost:8082/cargo/list/userid?userid=2');
         cargos.value = response.data.data.CargoList;
       } catch (error) {
         console.error('Error fetching cargos:', error);
@@ -102,7 +99,7 @@ export default {
 
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:8082/category/all");
+        const response = await service.get("http://localhost:8082/category/all");
         categories.value = response.data;
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -124,7 +121,7 @@ export default {
     const deleteCargo = async (cid, num) => {
       if (confirm('确定要删除这条货物信息吗？')) {
         try {
-          const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+          const response = await service.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
           if (response.data.code === 200) {
             fetchCargos();
             alert('删除成功');
@@ -139,10 +136,9 @@ export default {
       }
     };
 
-
     const updateCargo = async () => {
       try {
-        const response = await axios.post('http://localhost:8082/cargo/update', editingCargo);
+        const response = await service.post('http://localhost:8082/cargo/update', editingCargo);
         if (response.data.code === 200) {
           console.log('Cargo updated successfully:', response.data);
           fetchCargos(); // Reload the cargos list to reflect the update
@@ -168,7 +164,7 @@ export default {
       }
       if (confirm('确定要执行出库操作吗？')) {
         try {
-          const response = await axios.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+          const response = await service.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
           if (response.data.code === 200) {
             fetchCargos(); // 重新获取数据以更新视图
             alert('出库成功');
@@ -182,7 +178,6 @@ export default {
         }
       }
     };
-
 
     return {
       cargos,
@@ -312,4 +307,3 @@ export default {
 }
 
 </style>
-
