@@ -22,7 +22,10 @@
 </template>
 
 <script>
-import axios from "axios";
+import { mapMutations } from 'vuex'
+import { userLogin, userRegister } from '../api/user.js'
+import axios from '../utils/axios.js'
+import { mapGetters } from 'vuex'
 
 export default {
   data() {
@@ -52,7 +55,36 @@ export default {
             password: this.form.password
           };
           try {
-            const response = await axios.post('http://localhost:8082/login', params);
+            userLogin(params).then(res =>{
+              console.log(res)
+              if(res.data.code==200){
+                this.$message.success(`登录成功`)
+                this.loginForm = {}
+                console.log(res.data.userId)
+                const params3 = {
+                  userId:res.data.data.userId,
+                  username:res.data.data.username,
+                  password:res.data.data.password,
+                  roleId:res.data.data.role,
+                 
+
+                }
+                // 缓存用户数据
+                this.setUserInfo(params3)
+                const userInfo = this.$store.getters.userInfo
+                console.log(userInfo)
+                const jwt = res.headers['authorization']
+                
+                this.setToken(jwt)
+                const token = this.$store.getters.token
+                console.log(localStorage.getItem("token"))
+                // 关闭弹窗
+                this.setShowLogin(false)
+              }else if(res.data.code==400){
+                this.isLoading = false
+                this.$message.error('用户名或密码或验证码错误')
+              }
+            })
             this.$router.push({ name: 'dashboard' }); // 假设登录成功后跳转到仪表板
           } catch (error) {
             this.error = '登录失败，请检查您的用户名和密码是否正确。';
@@ -65,8 +97,17 @@ export default {
     },
     handleCancel() {
       this.$router.push('/'); 
-    }
-  }
+    },
+    ...mapMutations('login', {
+      'setUserInfo': 'SET_USER_INFO',
+      'setShowLogin': 'SET_SHOW_LOGIN',
+      'setToken':'SET_TOKEN',
+    }),
+  },
+  computed: {
+    ...mapGetters(['userInfo','token']),
+    
+  },
 }
 </script>
 
