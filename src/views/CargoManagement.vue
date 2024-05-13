@@ -92,6 +92,7 @@ export default {
 
     const fetchCargos = async () => {
       try {
+        console.log(localStorage.getItem("token"))
         const response = await axios.get('http://localhost:8082/cargo/list/userid?userid=2');
         cargos.value = response.data.data.CargoList;
       } catch (error) {

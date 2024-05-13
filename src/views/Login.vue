@@ -60,24 +60,23 @@ export default {
               if(res.data.code==200){
                 this.$message.success(`登录成功`)
                 this.loginForm = {}
-                console.log(res.data.userId)
+                console.log(res.data.data.id)
                 const params3 = {
-                  userId:res.data.data.userId,
+                  userId:res.data.data.id,
                   username:res.data.data.username,
                   password:res.data.data.password,
                   roleId:res.data.data.role,
-                 
-
                 }
                 // 缓存用户数据
                 this.setUserInfo(params3)
                 const userInfo = this.$store.getters.userInfo
                 console.log(userInfo)
                 const jwt = res.headers['authorization']
-                
+
                 this.setToken(jwt)
                 const token = this.$store.getters.token
                 console.log(localStorage.getItem("token"))
+
                 // 关闭弹窗
                 this.setShowLogin(false)
               }else if(res.data.code==400){
@@ -85,7 +84,7 @@ export default {
                 this.$message.error('用户名或密码或验证码错误')
               }
             })
-            this.$router.push({ name: 'dashboard' }); // 假设登录成功后跳转到仪表板
+            this.$router.push({ name: 'OrderManagement' }); // 假设登录成功后跳转到仪表板
           } catch (error) {
             this.error = '登录失败，请检查您的用户名和密码是否正确。';
           }
@@ -96,7 +95,7 @@ export default {
       });
     },
     handleCancel() {
-      this.$router.push('/'); 
+      this.$router.push('/');
     },
     ...mapMutations('login', {
       'setUserInfo': 'SET_USER_INFO',
@@ -106,7 +105,7 @@ export default {
   },
   computed: {
     ...mapGetters(['userInfo','token']),
-    
+
   },
 }
 </script>
