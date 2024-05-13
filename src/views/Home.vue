@@ -11,73 +11,60 @@
       </ul>
       <el-button class="btn" @click.prevent="goRegister">联系我们</el-button>
     </nav>
-    
-    <div class="service">
-      <div class="title">
-        <h2>智慧仓库管理系统</h2>
+
+    <div class="content">
+      <div class="background-image"></div>
+      <div class="service">
+        <div class="title">
+          <h2>智慧仓库管理系统</h2>
+        </div>
       </div>
-      
-      <div class="box">
-        <div class="card">
-				  <i class="fas fa-chart-line"></i>
-				  <h5>用户管理</h5>
-				  
-          	<div class="pra">
-					<p>保证您的信息不泄露</p>
-					  
-					<p style="text-align: center;">
-						<a class="button" href="">了解更多</a>
-					</p>
-			</div>
+    </div>
 
-		</div>
-
-        <div class="card">
-				  <i class="fas fa-chart-line"></i>
-				  <h5>安全保证</h5>
-				  
-            <div class="pra">
-					  <p>让您的货物</p>
-					  
-					  <p style="text-align: center;">
-						  <a class="button" href="">了解更多</a>
-					  </p>
-			</div>
-
-		</div>
-
-		<div class="card">
-				  <i class="fas fa-chart-line"></i>
-				  <h5>订单管理</h5>
-				  
-          <div class="pra">
-					  <p>快速处理订单</p>
-					  
-					  <p style="text-align: center;">
-						  <a class="button" href="">了解更多</a>
-					  </p>
-				  </div>
-
-			  </div>
-
-        <div class="card">
-				  <i class="fas fa-chart-line"></i>
-				  <h5>智能分拣</h5>
-				  
-          <div class="pra">
-					  <p>智能完成仓储工作</p>
-					  
-					  <p style="text-align: center;">
-						  <a class="button" href="">了解更多</a>
-					  </p>
-				  </div>
-
-			  </div>
-
-
-        <!-- 服务卡片 -->
+    <div class="box">
+      <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h5>用户管理</h5>
+        <div class="pra">
+          <p>保证您的信息不泄露</p>
+          <p style="text-align: center;">
+            <a class="button" href="">了解更多</a>
+          </p>
+        </div>
       </div>
 
+      <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h5>安全保证</h5>
+        <div class="pra">
+          <p>让您的货物</p>
+          <p style="text-align: center;">
+            <a class="button" href="">了解更多</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h5>订单管理</h5>
+        <div class="pra">
+          <p>快速处理订单</p>
+          <p style="text-align: center;">
+            <a class="button" href="">了解更多</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h5>智能分拣</h5>
+        <div class="pra">
+          <p>智能完成仓储工作</p>
+          <p style="text-align: center;">
+            <a class="button" href="">了解更多</a>
+          </p>
+        </div>
+      </div>
     </div>
     <footer>
       <p>网站主要使用的技术栈：</p>
@@ -127,11 +114,12 @@ export default {
 	box-sizing: border-box;
 }
 .hero{
-	height: 100vh;
+	height: 115vh;
 	width: 100%;
 	background-image: url(../background/1.jpg);
 	background-size: cover;
 	background-position: center;
+  position: absolute;
 }
 nav{
 	display: flex;
@@ -178,7 +166,7 @@ nav ul li a:hover{
 	font-weight: bold;
 	padding: 10px 25px;
 	border-radius: 30px;
-	transition: transform .4s; 
+	transition: transform .4s;
 }
 .btn:hover{
 	transform: scale(1.2);
@@ -207,7 +195,7 @@ button{
 	font-weight: bold;
 	padding: 13px 30px;
 	border-radius: 30px;
-	transition: .4s; 
+	transition: .4s;
 }
 button:hover{
 	background-color: transparent;
@@ -232,12 +220,14 @@ button:hover{
 	justify-content: center;
 	align-items: center;
 	min-height: 400px;
+  position: relative;
+  top: 70px;
 }
 .card{
-	height: 265px;
-	width: 335px;
-	padding: 20px 35px;
-	background: #3c51f2;
+	height: 220px;
+	width: 320px;
+	padding: 10px 35px;
+	background: #929efd;
 	border-radius: 20px;
 	margin: 15px;
 	position: relative;
@@ -271,7 +261,7 @@ h5{
 	font-weight: bold;
 	padding: 9px 22px;
 	border-radius: 30px;
-	transition: .4s; 
+	transition: .4s;
 }
 .card .button:hover{
 	background-color: transparent;
@@ -325,7 +315,7 @@ footer p:nth-child(2){
 	position: absolute;
 	color:#f9004d;
 	bottom: 35px;
-	font-size: 14px; 
+	font-size: 14px;
 }
 
 </style>
