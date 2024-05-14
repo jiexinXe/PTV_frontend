@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import Register from "@/views/register.vue";
 import Order from '../views/order.vue'
 import OrderManagement from '../views/OrderManagement.vue'
 import CargoManagement from '@/views/CargoManagement.vue';
@@ -18,6 +19,11 @@ const routes = [
     name: 'Login',
     component: Login
   },
+    {
+        path: '/Register',
+        name: 'Regsiter',
+        component: Register
+    },
   {
     path: '/OrderManagement',
     name: 'OrderManagement',
