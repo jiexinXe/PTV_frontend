@@ -79,12 +79,12 @@ export default {
 
                 // 关闭弹窗
                 this.setShowLogin(false)
+                this.$router.push({ name: 'OrderManagement' }); // 假设登录成功后跳转到仪表板
               }else if(res.data.code==400){
                 this.isLoading = false
                 this.$message.error('用户名或密码或验证码错误')
               }
             })
-            this.$router.push({ name: 'OrderManagement' }); // 假设登录成功后跳转到仪表板
           } catch (error) {
             this.error = '登录失败，请检查您的用户名和密码是否正确。';
           }
