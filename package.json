@@ -10,6 +10,7 @@
     "axios": "^1.6.7",
     "core-js": "^3.8.3",
     "element-ui": "^2.15.14",
+    "good-storage": "^1.1.1",
     "register-service-worker": "^1.7.2",
     "vue": "^2.6.14",
     "vue-axios": "^3.5.2",

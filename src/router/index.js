@@ -2,14 +2,16 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import Register from "@/views/register.vue";
 import Order from '../views/order.vue'
-
-import User from '../views/user.vue'
-
+<<<<<<<<< Temporary merge branch 1
 import OrderManagement from '../views/OrderManagement.vue'
-
-// import Header from '../components/header.vue'
+=========
+import User from '../views/user.vue'
+>>>>>>>>> Temporary merge branch 2
+import Header from '../components/header.vue'
 import AddCargo from '../views/addCargo.vue'
+import User from "@/views/user.vue";
 
 Vue.use(VueRouter)
 
@@ -19,6 +21,11 @@ const routes = [
     name: 'Login',
     component: Login
   },
+    {
+        path: '/Register',
+        name: 'Regsiter',
+        component: Register
+    },
   {
     path: '/OrderManagement',
     name: 'OrderManagement',
@@ -51,7 +58,12 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
+  },
+    {
+        path: '/CargoManagement',
+        name: 'CargoManagement',
+        component: CargoManagement  // 使用你的货物列表组件
+    }
 ]
 
 const router = new VueRouter({
