@@ -13,6 +13,7 @@ const service = axios.create({
 service.interceptors.request.use(
     config => {
         let token = localStorage.getItem("token");
+        console.log(token)
         if (token) {
             token = token.replace(/^"|"$/g, ''); // 去掉开头和结尾的引号
             config.headers['Authorization'] = `${token}`;

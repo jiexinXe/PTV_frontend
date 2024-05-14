@@ -28,6 +28,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { mapMutations } from 'vuex'
 
 export default {
   data() {
@@ -38,7 +39,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['userInfo']),
+    ...mapGetters(['userInfo','token']),
   },
   methods: {
     handleProfile() {
@@ -54,6 +55,9 @@ export default {
       this.isLoggedIn = false;
       this.userName = '未登录';
       this.userAvatar = require('../background/user_default.jpg');
+      console.log(localStorage.getItem('token'))
+      const userInfo = this.$store.getters.userInfo
+      console.log(userInfo)
       this.$router.push('/login');
     },
     handleLogin() {
@@ -74,7 +78,12 @@ export default {
         this.userName = '未登录';
         this.userAvatar = require('../background/user_default.jpg');
       }
-    }
+    },
+    ...mapMutations('login', {
+      'setUserInfo': 'SET_USER_INFO',
+      'setShowLogin': 'SET_SHOW_LOGIN',
+      'setToken':'SET_TOKEN',
+    }),
   },
   mounted() {
     this.checkLoginStatus();

@@ -15,9 +15,7 @@ export function userLogin (data) {
   axios.defaults.baseURL = 'http://localhost:8082';
   axios.defaults.withCredentials = false;// Cookie跨域
   return axios.post('/login?'+ Qs.stringify(data), {
-    headers: {
-      Authorization: localStorage.getItem("token")
-    }
+   
   })
 }
 
