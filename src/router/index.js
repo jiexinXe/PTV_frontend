@@ -4,9 +4,11 @@ import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from "@/views/register.vue";
 import Order from '../views/order.vue'
+<<<<<<<<< Temporary merge branch 1
 import OrderManagement from '../views/OrderManagement.vue'
-import CargoManagement from '@/views/CargoManagement.vue';
-
+=========
+import User from '../views/user.vue'
+>>>>>>>>> Temporary merge branch 2
 import Header from '../components/header.vue'
 import AddCargo from '../views/addCargo.vue'
 import User from "@/views/user.vue";
