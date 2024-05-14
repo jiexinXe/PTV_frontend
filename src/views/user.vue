@@ -126,7 +126,16 @@ button:hover {
     },
         
         getUserInfo() {
-            axios.get('http://localhost:8082/user/getUserinfo/1')
+            console.log(this.$store.getters.userInfo.userId)
+            const userId = this.$store.getters.userInfo.userId ; 
+            console.log( localStorage.getItem("token"))
+            console.log(userId);
+            axios.defaults.withCredentials = false;// Cookie跨域
+            axios.get(`http://localhost:8082/user/getUserinfo/${userId}`, {
+                headers: {
+                  Authorization: localStorage.getItem("token")// 添加授权标头
+                }       
+            })
             .then(response => {
                 const userData = response.data.data;
                 const userFields = userData.split(', ');
@@ -148,18 +157,25 @@ button:hover {
 
     },    
     saveProfile() {
-    axios.post('http://localhost:8082/user/changeUserinfo', {
-        userId: '1', // 替换为实际的用户ID
-        changeItem: 'profile', // 使用一个字段标识要修改的是用户信息
-        changeVariable: JSON.stringify({
-            name: this.user.name,
-            username: this.user.username,
-            gender: this.user.gender,
-            address: this.user.address,
-            email: this.user.email,
-            phone: this.user.phone
-        })
+      const userId = this.$store.getters.userInfo.userId ; 
+      console.log(userId);
+      axios.defaults.withCredentials = false;// Cookie跨域
+      axios.post('http://localhost:8082/user/changeUserinfo', {
+    userId: userId,
+    changeItem: 'profile',
+    changeVariable: JSON.stringify({
+        name: this.user.name,
+        username: this.user.username,
+        gender: this.user.gender,
+        address: this.user.address,
+        email: this.user.email,
+        phone: this.user.phone
     })
+}, {
+    headers: {
+        Authorization: localStorage.getItem("token")
+    }
+})
     .then(response => {
         console.log('Profile saved:', response.data.msg);
         this.$message({

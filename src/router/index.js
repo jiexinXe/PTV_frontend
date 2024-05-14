@@ -4,14 +4,14 @@ import HomeView from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from "@/views/register.vue";
 import Order from '../views/order.vue'
-<<<<<<<<< Temporary merge branch 1
+import CargoManagement from '../views/CargoManagement.vue'
 import OrderManagement from '../views/OrderManagement.vue'
-=========
+
 import User from '../views/user.vue'
->>>>>>>>> Temporary merge branch 2
+
 import Header from '../components/header.vue'
 import AddCargo from '../views/addCargo.vue'
-import User from "@/views/user.vue";
+// import User from "@/views/user.vue";
 
 Vue.use(VueRouter)
 
@@ -37,7 +37,7 @@ const routes = [
      component: Order
     },
     {
-      path: '/user',
+      path: '/profile',
       name: 'User',
       component: User
      },
