@@ -86,7 +86,15 @@ export default {
               }
             })
           } catch (error) {
-            this.error = '登录失败，请检查您的用户名和密码是否正确。';
+            if (error.response && error.response.status === 401) {
+              // 删除localStorage中的token
+              localStorage.removeItem('token');
+              this.$message.error('登录超时，请重新登录');
+              // 重定向到登录页面
+              this.$router.push('/');
+            } else {
+              this.error = '登录失败，请检查您的用户名和密码是否正确。';
+            }
           }
         } else {
           console.log('表单验证失败!');
