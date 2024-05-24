@@ -12,11 +12,17 @@ const service = axios.create({
 // 请求拦截
 service.interceptors.request.use(
     config => {
-        let token = localStorage.getItem("token");
-        console.log(token)
-        if (token) {
-            token = token.replace(/^"|"$/g, ''); // 去掉开头和结尾的引号
-            config.headers['Authorization'] = `${token}`;
+        // 如果请求是发送到/login，则清除localStorage中的token
+        if (config.url.includes('/login')) {
+            localStorage.removeItem("token");
+            console.log("Logging in: Token removed from localStorage.");
+        } else {
+            // 对于其他请求，如果存在token，则添加到请求头
+            let token = localStorage.getItem("token");
+            if (token) {
+                token = token.replace(/^"|"$/g, ''); // 去掉开头和结尾的引号
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return config;
     },
@@ -24,6 +30,8 @@ service.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+
 
 // 响应拦截
 service.interceptors.response.use(

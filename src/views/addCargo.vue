@@ -28,6 +28,7 @@
 <script>
 import service from "../utils/axios"; // 引入带有拦截器的axios实例
 import Layout from "@/components/layout.vue";
+import axios from "axios";
 
 export default {
   components: {Layout},
@@ -50,7 +51,11 @@ export default {
   },
   methods: {
     fetchCategories() {
-      service.get("http://localhost:8082/category/all")
+      axios.get("http://localhost:8082/category/all", {
+                headers: {
+                  Authorization: localStorage.getItem("token")// 添加授权标头
+                }       
+            })
           .then(response => {
             this.categories = response.data;
           })
@@ -86,17 +91,23 @@ export default {
         return;
       }
 
+ 
       // 验证成功，发送请求
-      service.post("http://localhost:8082/cargo/add", {
-        name: this.cargo.name,
-        category: this.selectedCategoryId,
-        num: this.cargo.num,
-        price: this.cargo.price,
-        supplier: this.cargo.supplier,
-        enterTime: new Date().toISOString(),
-        location: this.cargo.location,
-        userid: this.cargo.userid
-      })
+      axios.post("http://localhost:8082/cargo/add", {
+  name: this.cargo.name,
+  category: this.selectedCategoryId,
+  num: this.cargo.num,
+  price: this.cargo.price,
+  supplier: this.cargo.supplier,
+  enterTime: new Date().toISOString(),
+  location: this.cargo.location,
+  userid: this.cargo.userid
+}, {
+  headers: {
+    Authorization: localStorage.getItem("token")  
+  }
+})
+
           .then(response => {
             console.log("Add cargo:", response.data.msg);
             this.$message({
