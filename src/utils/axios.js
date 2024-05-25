@@ -21,7 +21,7 @@ service.interceptors.request.use(
             let token = localStorage.getItem("token");
             if (token) {
                 token = token.replace(/^"|"$/g, ''); // 去掉开头和结尾的引号
-                config.headers['Authorization'] = `Bearer ${token}`;
+                config.headers['Authorization'] = `${token}`;
             }
         }
         return config;

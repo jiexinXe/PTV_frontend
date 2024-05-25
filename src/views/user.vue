@@ -1,11 +1,11 @@
 <template>
     <div>
-      <my_header></my_header>
+      <Layout>
       <h1>个人信息</h1>
       <form @submit.prevent="saveProfile" style="max-width: 400px; margin: 0 auto;">
         <label for="role">角色:</label>
         <input type="text" id="role" v-model="roleText" readonly style="width: 100%; font-weight: bold; color: red;"
-            @mouseover="showAdminInfo" 
+            @mouseover="showAdminInfo"
             @mouseleave="hideAdminInfo">
         <div v-if="user.isAdmin" style="margin-top: 10px;">
         <h3>管理员权限:</h3>
@@ -34,9 +34,10 @@
       <input type="text" id="lastLogin" v-model="user.lastLogin" readonly style="width: 100%;">
       <button type="submit" style="width: 100%;">修改</button>
     </form>
+      </Layout>>
     </div>
   </template>
-  
+
   <style lang="less">
 h1 {
   text-align: center;
@@ -70,10 +71,12 @@ button:hover {
   background-color: #0056b3;
 }
 </style>
-  
+
   <script>
+  import Layout from "@/components/layout.vue";
   import axios from "axios";
   export default {
+    components: { Layout },
     data() {
       return {
         user: {
@@ -120,21 +123,21 @@ button:hover {
     },
     hideAdminInfo() {
         if (this.user.roleText.trim() === '管理员')
-    {  
+    {
       this.user.isAdmin = false;
     }
     },
-        
+
         getUserInfo() {
             console.log(this.$store.getters.userInfo.userId)
-            const userId = this.$store.getters.userInfo.userId ; 
+            const userId = this.$store.getters.userInfo.userId ;
             console.log( localStorage.getItem("token"))
             console.log(userId);
             axios.defaults.withCredentials = false;// Cookie跨域
             axios.get(`http://localhost:8082/user/getUserinfo/${userId}`, {
                 headers: {
                   Authorization: localStorage.getItem("token")// 添加授权标头
-                }       
+                }
             })
             .then(response => {
                 const userData = response.data.data;
@@ -155,9 +158,9 @@ button:hover {
             });
 
 
-    },    
+    },
     saveProfile() {
-      const userId = this.$store.getters.userInfo.userId ; 
+      const userId = this.$store.getters.userInfo.userId ;
       console.log(userId);
       axios.defaults.withCredentials = false;// Cookie跨域
       axios.post('http://localhost:8082/user/changeUserinfo', {
@@ -194,4 +197,3 @@ button:hover {
     }
   };
   </script>
-  
