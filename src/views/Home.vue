@@ -2,7 +2,7 @@
   <div class="hero">
     <nav>
 
-		<img src="../assets/logo.jpg" width="150" height="150">
+<!--		<img src="../assets/logo.jpg" width="150" height="150">-->
 
       <ul>
         <li><el-link class="nav-item" @click.prevent="goHome">首页</el-link></li>

@@ -15,3 +15,9 @@ export const isAdmin = (state) => {
     console.log("Here");
     return state.login.userinfo && state.login.userinfo.roleId === 2;
 };
+
+// 新增 getter 用于获取用户ID
+export const userId = (state) => {
+    console.log(state.login.userinfo);
+    return state.login.userinfo ? state.login.userinfo.userId : null;
+};

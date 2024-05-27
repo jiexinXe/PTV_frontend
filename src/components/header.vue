@@ -3,7 +3,7 @@
     <el-row class="top-bar" type="flex" justify="space-between" align="middle">
       <!-- Logo 区域 -->
       <el-col :span="4">
-        <img src="../assets/logo.jpg" width="150" height="150">
+<!--        <img src="../assets/logo.jpg" width="150" height="150">-->
       </el-col>
       <!-- 个人信息区域 -->
       <el-col :span="4" :offset="16">

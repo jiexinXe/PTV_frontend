@@ -67,66 +67,71 @@
 <script>
 import service from '../utils/axios'; // 引入带有拦截器的axios实例
 import Layout from "@/components/layout.vue";
-import { reactive, ref, onMounted, computed } from 'vue';
-import { useRouter } from "vue-router/composables";
+import { mapGetters } from 'vuex';
 
 export default {
   components: { Layout },
-  setup() {
-    const router = useRouter();
-    const cargos = ref([]);
-    const showModal = ref(false);
-    const categories = ref([]);
-    const selectedCategoryId = ref(null);
-    const searchQuery = ref('');
-    const editingCargo = reactive({
-      cid: '',
-      name: '',
-      num: '',
-      price: '',
-      supplier: '',
-      location: ''
-    });
-
-    const fetchCargos = async () => {
+  data() {
+    return {
+      cargos: [],
+      showModal: false,
+      categories: [],
+      selectedCategoryId: null,
+      searchQuery: '',
+      editingCargo: {
+        cid: '',
+        name: '',
+        num: '',
+        price: '',
+        supplier: '',
+        location: ''
+      }
+    };
+  },
+  computed: {
+    ...mapGetters(['userId']),
+    filteredCargos() {
+      return this.cargos.filter(cargo =>
+          cargo.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    }
+  },
+  mounted() {
+    this.fetchCargos();
+    this.fetchCategories();
+  },
+  methods: {
+    async fetchCargos() {
       try {
-        const response = await service.get('http://localhost:8082/cargo/list/userid?userid=2');
-        cargos.value = response.data.data.CargoList;
+        const response = await service.get(`http://localhost:8082/cargo/list/userid?userid=${this.userId}`);
+        this.cargos = response.data.data.CargoList;
       } catch (error) {
         console.error('Error fetching cargos:', error);
       }
-    };
-
-    const fetchCategories = async () => {
+    },
+    async fetchCategories() {
       try {
         const response = await service.get("http://localhost:8082/category/all");
-        categories.value = response.data;
+        this.categories = response.data;
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
-    };
-
-    onMounted(() => {
-      fetchCargos();
-      fetchCategories();
-    });
-
-    const goToAddCargo = () => router.push('/addCargo');
-
-    const editCargo = (cargo) => {
-      Object.assign(editingCargo, cargo);
-      showModal.value = true;
-    };
-
-    const deleteCargo = async (cid, num) => {
+    },
+    goToAddCargo() {
+      this.$router.push('/addCargo');
+    },
+    editCargo(cargo) {
+      Object.assign(this.editingCargo, cargo);
+      this.showModal = true;
+    },
+    async deleteCargo(cid, num) {
       if (confirm('确定要删除这条货物信息吗？')) {
         try {
           const response = await service.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
           if (response.data.code === 200) {
-            fetchCargos();
+            this.fetchCargos();
             alert('删除成功');
           } else {
-            console.log(response.data);
             console.error('Failed to delete cargo:', response.data.message);
             alert('删除失败');
           }
@@ -135,30 +140,22 @@ export default {
           alert('删除时出现错误');
         }
       }
-    };
-
-    const updateCargo = async () => {
+    },
+    async updateCargo() {
       try {
-        const response = await service.post('http://localhost:8082/cargo/update', editingCargo);
+        const response = await service.post('http://localhost:8082/cargo/update', this.editingCargo);
         if (response.data.code === 200) {
           console.log('Cargo updated successfully:', response.data);
-          fetchCargos(); // Reload the cargos list to reflect the update
-          showModal.value = false; // Close the modal after successful update
+          this.fetchCargos(); // Reload the cargos list to reflect the update
+          this.showModal = false; // Close the modal after successful update
         } else {
           console.error('Failed to update cargo:', response.data.message);
         }
       } catch (error) {
         console.error('Error updating cargo:', error);
       }
-    };
-
-    const filteredCargos = computed(() => {
-      return cargos.value.filter(cargo =>
-          cargo.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-      );
-    });
-
-    const decreaseStock = async (cid, num) => {
+    },
+    async decreaseStock(cid, num) {
       if (num <= 0 || num === '') {
         alert('请输入有效数量');
         return;
@@ -167,7 +164,7 @@ export default {
         try {
           const response = await service.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
           if (response.data.code === 200) {
-            fetchCargos(); // 重新获取数据以更新视图
+            this.fetchCargos(); // 重新获取数据以更新视图
             alert('出库成功');
           } else {
             alert('出库失败');
@@ -178,24 +175,9 @@ export default {
           alert('出库时出现错误');
         }
       }
-    };
-
-    return {
-      cargos,
-      showModal,
-      categories,
-      selectedCategoryId,
-      editingCargo,
-      goToAddCargo,
-      editCargo,
-      deleteCargo,
-      updateCargo,
-      searchQuery,
-      filteredCargos,
-      decreaseStock,
-    };
+    }
   }
-}
+};
 </script>
 
 <style>
