@@ -29,6 +29,7 @@
           <template slot="title"><i class="el-icon-s-tools"></i>设备管理</template>
           <el-menu-item index="3-1">小车管理</el-menu-item>
           <el-menu-item index="3-2">货架管理</el-menu-item>
+          </el-menu-item>
         </el-submenu>
       </el-menu>
     </el-aside>
@@ -50,7 +51,7 @@ export default {
       let targetPath = '';
       switch (key) {
         case '1-1':
-          targetPath = isAdmin.value ? '/CargoManagement' : '/OrderManagement';
+          targetPath = isAdmin.value ? '/CargoManagement' : '/CargoManagement';
           break;
         case '1-2':
           targetPath = '/OrderManagement';

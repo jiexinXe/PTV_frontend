@@ -126,6 +126,7 @@ export default {
             fetchCargos();
             alert('删除成功');
           } else {
+            console.log(response.data);
             console.error('Failed to delete cargo:', response.data.message);
             alert('删除失败');
           }
