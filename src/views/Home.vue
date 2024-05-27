@@ -1,7 +1,9 @@
 <template>
   <div class="hero">
     <nav>
-      <h2 class="logo">这里是logo</h2>
+
+		<img src="../assets/logo.jpg" width="150" height="150">
+
       <ul>
         <li><el-link class="nav-item" @click.prevent="goHome">首页</el-link></li>
         <li><el-link class="nav-item" @click.prevent="goAbout">关于</el-link></li>
