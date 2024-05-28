@@ -6,7 +6,7 @@
         <label htmlFor="name">货物名称:</label>
         <input type="text" id="name" v-model="cargo.name" style="width: 100%;">
         <label htmlFor="category">货物类别:</label>
-        <select v-model="selectedCategoryId" style="width: 100%;">
+        <select v-model="cargo.selectedCategoryId" style="width: 100%;">
           <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId">
             {{ category.categoryName }}
           </option>
@@ -37,13 +37,13 @@ export default {
     return {
       cargo: {
         name: "",
+        selectedCategoryId: null,
         num: "",
         price: "",
         supplier: "",
         location: "",
       },
       categories: [],
-      selectedCategoryId: null,
     };
   },
   computed: {
@@ -69,7 +69,7 @@ export default {
     },
     addCargo() {
       // 验证输入是否为空
-      if (!this.cargo.name || !this.selectedCategoryId || !this.cargo.num || !this.cargo.price || !this.cargo.supplier || !this.cargo.location) {
+      if (!this.cargo.name || !this.cargo.selectedCategoryId || !this.cargo.num || !this.cargo.price || !this.cargo.supplier || !this.cargo.location) {
         this.$message({
           message: "请填写完整信息！",
           type: "warning",
@@ -98,12 +98,13 @@ export default {
       // 验证成功，发送请求
       axios.post(`http://localhost:8082/cargo/add?userid=${this.userId}`, {
         name: this.cargo.name,
-        category: this.selectedCategoryId,
+        category: this.cargo.selectedCategoryId,
         num: this.cargo.num,
         price: this.cargo.price,
         supplier: this.cargo.supplier,
         enterTime: new Date().toISOString(),
         location: this.cargo.location,
+        userid: this.userId
       }, {
         headers: {
           Authorization: localStorage.getItem("token")

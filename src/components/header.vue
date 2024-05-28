@@ -2,9 +2,15 @@
   <div>
     <el-row class="top-bar" type="flex" justify="space-between" align="middle">
       <!-- Logo 区域 -->
+<<<<<<< Updated upstream
       <el-col :span="4">
 <!--        <img src="../assets/logo.jpg" width="150" height="150">-->
       </el-col>
+=======
+<!--      <el-col :span="4">-->
+<!--        <img src="../assets/logo.jpg" width="150" height="150">-->
+<!--      </el-col>-->
+>>>>>>> Stashed changes
       <!-- 个人信息区域 -->
       <el-col :span="4" :offset="16">
         <div class="user_box">
