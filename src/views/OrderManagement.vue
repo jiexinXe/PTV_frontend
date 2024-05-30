@@ -17,7 +17,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="order in orders" :key="order.id">
+          <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.id }}</td>
             <td>{{ order.name }}</td>
             <td>{{ order.numOfItem }}</td>
@@ -36,61 +36,72 @@
           </tbody>
         </table>
       </div>
-
-      <!-- 新增订单模态框 -->
-      <div v-if="showAddOrder" class="modal">
-        <div class="modal-content">
-          <span class="close" @click="showAddOrder = false">&times;</span>
-          <h3>新增订单</h3>
-          <form @submit.prevent="addOrder">
-            <label for="name">订单名称:</label>
-            <input id="name" v-model="newOrder.name" required>
-
-            <label for="amount">订单金额:</label>
-            <input id="amount" type="number" v-model="newOrder.amount" required>
-
-            <label for="quantity">货物数量:</label>
-            <input id="quantity" type="number" v-model="newOrder.numOfItem" required>
-
-            <label for="startTime">开始时间:</label>
-            <input id="startTime" type="date" v-model="newOrder.startTime" required>
-
-            <label for="endTime">结束时间:</label>
-            <input id="endTime" type="date" v-model="newOrder.endTime" required>
-
-            <label for="customer">客户名:</label>
-            <input id="customer" v-model="newOrder.customer" required>
-
-            <label for="note">备注:</label>
-            <textarea id="note" v-model="newOrder.note"></textarea>
-
-            <button type="submit">提交</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- 审批订单模态框 -->
-      <div v-if="showApproval" class="modal">
-        <div class="modal-content">
-          <span class="close" @click="showApproval = false">&times;</span>
-          <h3>订单详情</h3>
-          <div class="order-details">
-            <p><strong>订单编号:</strong> {{ currentOrder.id }}</p>
-            <p><strong>订单名称:</strong> {{ currentOrder.name }}</p>
-            <p><strong>货物数量:</strong> {{ currentOrder.numOfItem }}</p>
-            <p><strong>开始时间:</strong> {{ currentOrder.startTime }}</p>
-            <p><strong>结束时间:</strong> {{ currentOrder.endTime }}</p>
-            <p><strong>订单状态:</strong> {{ currentOrder.states }}</p>
-          </div>
-          <div class="approval-buttons" v-if="currentOrder.states === '待审批'">
-            <button @click="approve('通过')">审批通过</button>
-            <button @click="approve('不通过')">不通过</button>
-          </div>
-        </div>
-      </div>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 20, 50]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="filteredOrders.length"
+      >
+      </el-pagination>
     </Layout>
+
+    <!-- 新增订单模态框 -->
+    <div v-if="showAddOrder" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showAddOrder = false">&times;</span>
+        <h3>新增订单</h3>
+        <form @submit.prevent="addOrder">
+          <label for="name">订单名称:</label>
+          <input id="name" v-model="newOrder.name" required>
+
+          <label for="amount">订单金额:</label>
+          <input id="amount" type="number" v-model="newOrder.amount" required>
+
+          <label for="quantity">货物数量:</label>
+          <input id="quantity" type="number" v-model="newOrder.numOfItem" required>
+
+          <label for="startTime">开始时间:</label>
+          <input id="startTime" type="date" v-model="newOrder.startTime" required>
+
+          <label for="endTime">结束时间:</label>
+          <input id="endTime" type="date" v-model="newOrder.endTime" required>
+
+          <label for="customer">客户名:</label>
+          <input id="customer" v-model="newOrder.customer" required>
+
+          <label for="note">备注:</label>
+          <textarea id="note" v-model="newOrder.note"></textarea>
+
+          <button type="submit">提交</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 审批订单模态框 -->
+    <div v-if="showApproval" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showApproval = false">&times;</span>
+        <h3>订单详情</h3>
+        <div class="order-details">
+          <p><strong>订单编号:</strong> {{ currentOrder.id }}</p>
+          <p><strong>订单名称:</strong> {{ currentOrder.name }}</p>
+          <p><strong>货物数量:</strong> {{ currentOrder.numOfItem }}</p>
+          <p><strong>开始时间:</strong> {{ currentOrder.startTime }}</p>
+          <p><strong>结束时间:</strong> {{ currentOrder.endTime }}</p>
+          <p><strong>订单状态:</strong> {{ currentOrder.states }}</p>
+        </div>
+        <div class="approval-buttons" v-if="currentOrder.states === '待审批'">
+          <button @click="approve('通过')">审批通过</button>
+          <button @click="approve('不通过')">不通过</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 
 <script>
 import Layout from "@/components/layout.vue";
@@ -117,10 +128,23 @@ export default {
         customer: '',
         note: ''
       },
+      currentPage: 1,
+      pageSize: 10,
+      searchQuery: '' // 添加搜索查询
     };
   },
   computed: {
-    ...mapGetters(['userId', 'token']) // 确保你的 Vuex store 中有一个 getter 用于获取 token
+    ...mapGetters(['userId', 'token']), // 确保你的 Vuex store 中有一个 getter 用于获取 token
+    filteredOrders() {
+      return this.orders.filter(order =>
+          order.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+    paginatedOrders() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredOrders.slice(start, end);
+    }
   },
   mounted() {
     this.fetchOrders();
@@ -170,8 +194,14 @@ export default {
       } catch (error) {
         console.error('Error approving order:', error);
       }
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
     }
-  },
+  }
 };
 </script>
 

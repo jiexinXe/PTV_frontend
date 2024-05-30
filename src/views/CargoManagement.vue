@@ -18,7 +18,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="cargo in filteredCargos" :key="cargo.cid">
+          <tr v-for="cargo in paginatedCargos" :key="cargo.cid">
             <td>{{ cargo.cid }}</td>
             <td>{{ cargo.name }}</td>
             <td>{{ cargo.num }}</td>
@@ -33,6 +33,16 @@
           </tbody>
         </table>
       </div>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 20, 50]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="filteredCargos.length"
+      >
+      </el-pagination>
     </Layout>
     <!-- 模态框 -->
     <div v-if="showModal" class="modal">
@@ -85,7 +95,9 @@ export default {
         price: '',
         supplier: '',
         location: ''
-      }
+      },
+      currentPage: 1,
+      pageSize: 10
     };
   },
   computed: {
@@ -94,6 +106,11 @@ export default {
       return this.cargos.filter(cargo =>
           cargo.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
+    },
+    paginatedCargos() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredCargos.slice(start, end);
     }
   },
   mounted() {
@@ -175,9 +192,16 @@ export default {
           alert('出库时出现错误');
         }
       }
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
     }
   }
 };
+
 </script>
 
 <style>

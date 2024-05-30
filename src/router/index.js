@@ -10,6 +10,7 @@ import StoreManagement from '../views/StoreManagement.vue' // 新增
 import WareManagement from '../views/WareManagement.vue' // 新增
 import CarManagement from '../views/CarManagement.vue' // 新增
 import ShelfManagement from '../views/ShelfManagement.vue' // 新增
+import StateManagement from "@/views/StateManagement.vue";
 
 import User from '../views/user.vue'
 import Header from '../components/header.vue'
@@ -82,7 +83,13 @@ const routes = [
         path: '/ShelfManagement',
         name: 'ShelfManagement',
         component: ShelfManagement // 新增
+    },
+    {
+        path: '/StateManagement',
+        name: 'StateManagement',
+        component: StateManagement // 新增
     }
+
 ]
 
 const router = new VueRouter({
