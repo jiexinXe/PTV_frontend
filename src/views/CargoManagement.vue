@@ -65,7 +65,7 @@
           </select>
           <label for="supplier">供应商名称:</label>
           <input type="text" id="supplier" v-model="editingCargo.supplier" style="width: 100%;">
-          <label for="location">入库位置:</label>
+          <label for="location">货物位置:</label>
           <input type="text" id="location" v-model="editingCargo.location" style="width: 100%;">
           <button type="submit" style="width: 100%;">保存修改</button>
         </form>

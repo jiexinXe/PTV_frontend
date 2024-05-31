@@ -6,28 +6,39 @@
         <div
             v-for="(shelf, shelfIndex) in warehouse"
             :key="shelfIndex"
-            class="shelf"
+            class="shelf-summary"
+            @click="selectShelf(shelfIndex)"
         >
-          <h3 class="shelf-label">货架 {{ shelfIndex + 1 }}</h3>
-          <div class="compartments">
-            <div
-                v-for="(compartment, compartmentIndex) in getPaginatedCompartments(shelfIndex)"
-                :key="compartmentIndex"
-                class="compartment"
-                :class="{ filled: compartment.filled }"
-                @click="toggleCompartment(shelfIndex, compartmentIndex)"
-            >
-              {{ compartment.id }}
+          货架 {{ shelfIndex + 1 }}
+        </div>
+      </div>
+      <div v-if="selectedShelfIndex !== null" class="details-container">
+        <h3>货架 {{ selectedShelfIndex + 1 }} 详情</h3>
+        <div class="warehouse">
+          <div class="shelf">
+            <div class="compartments left">
+              <div
+                  v-for="(compartment, compartmentIndex) in getLeftCompartments(selectedShelfIndex)"
+                  :key="compartmentIndex"
+                  class="compartment"
+                  :class="{ filled: compartment.filled }"
+                  @click="toggleCompartment(selectedShelfIndex, compartmentIndex)"
+              >
+                {{ compartment.id }}
+              </div>
+            </div>
+            <div class="compartments right">
+              <div
+                  v-for="(compartment, compartmentIndex) in getRightCompartments(selectedShelfIndex)"
+                  :key="compartmentIndex"
+                  class="compartment"
+                  :class="{ filled: compartment.filled }"
+                  @click="toggleCompartment(selectedShelfIndex, compartmentIndex + 100)"
+              >
+                {{ compartment.id }}
+              </div>
             </div>
           </div>
-          <el-pagination
-              @current-change="handleCurrentChange(shelfIndex)"
-              :current-page="currentPages[shelfIndex]"
-              :page-size="pageSizes[shelfIndex]"
-              layout="total, prev, pager, next, jumper"
-              :total="warehouse[shelfIndex].length"
-          >
-          </el-pagination>
         </div>
       </div>
     </Layout>
@@ -35,7 +46,9 @@
 </template>
 
 <script>
+import axios from 'axios';
 import Layout from "@/components/layout.vue";
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -47,9 +60,11 @@ export default {
       columns: 20, // 每个货架的列数
       levels: 10, // 每个隔间的层数
       warehouse: [], // 存储仓库数据
-      currentPages: [], // 记录每个货架当前的页码
-      pageSizes: [] // 记录每个货架的每页显示数量
+      selectedShelfIndex: null // 进入页面时默认没有选择货架
     };
+  },
+  computed: {
+    ...mapGetters(['userId', 'token']),
   },
   mounted() {
     this.initializeWarehouse();
@@ -58,31 +73,63 @@ export default {
     initializeWarehouse() {
       for (let i = 0; i < this.rows; i++) {
         const shelf = [];
-        for (let j = 0; j < this.columns * this.levels * 2; j++) {
+        for (let j = 0; j < this.columns * this.levels; j++) {
           shelf.push({ id: `S${i + 1}-C${j + 1}`, filled: false });
         }
         this.warehouse.push(shelf);
-        this.currentPages.push(1); // 初始化每个货架的当前页码为1
-        this.pageSizes.push(20); // 初始化每个货架的每页显示数量为20
       }
     },
     toggleCompartment(shelfIndex, compartmentIndex) {
-      const actualIndex = compartmentIndex + (this.currentPages[shelfIndex] - 1) * this.pageSizes[shelfIndex];
       this.$set(
-          this.warehouse[shelfIndex][actualIndex],
+          this.warehouse[shelfIndex][compartmentIndex],
           "filled",
-          !this.warehouse[shelfIndex][actualIndex].filled
+          !this.warehouse[shelfIndex][compartmentIndex].filled
       );
     },
-    getPaginatedCompartments(shelfIndex) {
-      const start = (this.currentPages[shelfIndex] - 1) * this.pageSizes[shelfIndex];
-      const end = start + this.pageSizes[shelfIndex];
-      return this.warehouse[shelfIndex].slice(start, end);
+    async selectShelf(index) {
+      this.selectedShelfIndex = index;
+      const shelveId = index + 1;
+      try {
+        const response = await axios.get(
+            'http://localhost:8082/authserver/shelves/info',
+            {
+              headers: {
+                Authorization: `${this.token}`
+              },
+              params: {
+                warehouse_id: '1',
+                shelve_id: shelveId.toString()
+              }
+            }
+        );
+
+        // 更新货架信息
+        const shelfData = response.data.data;
+        this.updateShelfData(shelfData);
+
+      } catch (error) {
+        console.error("Failed to fetch shelf data:", error);
+      }
     },
-    handleCurrentChange(shelfIndex) {
-      return (val) => {
-        this.$set(this.currentPages, shelfIndex, val);
-      };
+    updateShelfData(shelfData) {
+      // 清空当前选中的货架的 filled 状态
+      this.warehouse[this.selectedShelfIndex].forEach(compartment => {
+        compartment.filled = false;
+      });
+
+      // 更新货架信息，根据 cargoId 设置 filled 状态
+      shelfData.forEach(item => {
+        if (item.cargoId) {
+          const compartmentIndex = item.id - 1; // 根据返回的 id 找到对应的货架单元
+          this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'filled', true);
+        }
+      });
+    },
+    getLeftCompartments(shelfIndex) {
+      return this.warehouse[shelfIndex].slice(0, 100); // 左半部分
+    },
+    getRightCompartments(shelfIndex) {
+      return this.warehouse[shelfIndex].slice(100, 200); // 右半部分
     }
   }
 };
@@ -90,7 +137,6 @@ export default {
 
 <style scoped>
 .warehouse-management {
-  padding: 20px;
 }
 
 .warehouse-title {
@@ -101,9 +147,33 @@ export default {
 
 .shelf-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
   justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.shelf-summary {
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.shelf-summary:hover {
+  background-color: #e0e0e0;
+}
+
+.details-container {
+  margin-top: 20px;
+}
+
+.warehouse {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .shelf {
@@ -111,21 +181,23 @@ export default {
   border: 1px solid #ddd;
   padding: 10px;
   border-radius: 10px;
-  width: 48%; /* 每个货架占宽度的48%，确保两列布局 */
-  box-sizing: border-box;
-}
-
-.shelf-label {
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
 }
 
 .compartments {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5列 */
-  grid-template-rows: repeat(4, 40px); /* 4行，每行高40px */
+  grid-template-columns: repeat(10, 1fr); /* 10列 */
   gap: 5px;
+  width: 48%;
+}
+
+.compartments.left {
+  grid-template-rows: repeat(10, 40px); /* 10行，每行高40px */
+}
+
+.compartments.right {
+  grid-template-rows: repeat(10, 40px); /* 10行，每行高40px */
 }
 
 .compartment {
