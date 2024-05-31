@@ -106,7 +106,7 @@ export default {
         // 更新货架信息
         const shelfData = response.data.data;
         this.updateShelfData(shelfData);
-
+        console.log(shelfData);
       } catch (error) {
         console.error("Failed to fetch shelf data:", error);
       }
@@ -120,7 +120,7 @@ export default {
       // 更新货架信息，根据 cargoId 设置 filled 状态
       shelfData.forEach(item => {
         if (item.cargoId) {
-          const compartmentIndex = item.id - 1; // 根据返回的 id 找到对应的货架单元
+          const compartmentIndex = (item.numColumn - 1) * 10 + (item.numRow - 1);
           this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'filled', true);
         }
       });
