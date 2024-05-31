@@ -22,7 +22,7 @@
                   :key="compartmentIndex"
                   class="compartment"
                   :class="{ filled: compartment.filled }"
-                  @click="toggleCompartment(selectedShelfIndex, compartmentIndex)"
+                  @click="showCargoInfo(selectedShelfIndex, compartmentIndex)"
               >
                 {{ compartment.id }}
               </div>
@@ -33,7 +33,7 @@
                   :key="compartmentIndex"
                   class="compartment"
                   :class="{ filled: compartment.filled }"
-                  @click="toggleCompartment(selectedShelfIndex, compartmentIndex + 100)"
+                  @click="showCargoInfo(selectedShelfIndex, compartmentIndex + 100)"
               >
                 {{ compartment.id }}
               </div>
@@ -42,6 +42,29 @@
         </div>
       </div>
     </Layout>
+    <!-- 模态框 -->
+    <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showModal = false">&times;</span>
+        <h3 v-if="cargoInfo">{{ cargoInfo.name }}</h3>
+        <div v-if="cargoInfo">
+          <p><strong>货物编号:</strong> {{ cargoInfo.cid }}</p>
+          <p><strong>仓库编号:</strong> {{ cargoInfo.warehouseId }}</p>
+          <p><strong>货物名称:</strong> {{ cargoInfo.name }}</p>
+          <p><strong>类别:</strong> {{ cargoInfo.category }}</p>
+          <p><strong>数量:</strong> {{ cargoInfo.num }}</p>
+          <p><strong>单价:</strong> {{ cargoInfo.price }}</p>
+          <p><strong>供应商:</strong> {{ cargoInfo.supplier }}</p>
+          <p><strong>入库时间:</strong> {{ cargoInfo.enterTime }}</p>
+          <p><strong>位置:</strong> {{ cargoInfo.location }}</p>
+          <p><strong>用户ID:</strong> {{ cargoInfo.userid }}</p>
+          <p><strong>状态:</strong> {{ cargoInfo.status }}</p>
+        </div>
+        <div v-else>
+          <p>期待您的货物</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -60,7 +83,9 @@ export default {
       columns: 20, // 每个货架的列数
       levels: 10, // 每个隔间的层数
       warehouse: [], // 存储仓库数据
-      selectedShelfIndex: null // 进入页面时默认没有选择货架
+      selectedShelfIndex: null, // 进入页面时默认没有选择货架
+      showModal: false, // 控制模态框显示
+      cargoInfo: null // 存储货物信息
     };
   },
   computed: {
@@ -79,12 +104,38 @@ export default {
         this.warehouse.push(shelf);
       }
     },
-    toggleCompartment(shelfIndex, compartmentIndex) {
-      this.$set(
-          this.warehouse[shelfIndex][compartmentIndex],
-          "filled",
-          !this.warehouse[shelfIndex][compartmentIndex].filled
-      );
+    async showCargoInfo(shelfIndex, compartmentIndex) {
+      const shelveId = shelfIndex + 1;
+      const numColumn = Math.floor(compartmentIndex / 10) + 1;
+      const numRow = (compartmentIndex % 10) + 1;
+      try {
+        const response = await axios.get(
+            'http://localhost:8082/authserver/shelves/cargo',
+            {
+              headers: {
+                Authorization: `${this.token}`
+              },
+              params: {
+                warehouse_id: '1',
+                shelve_id: shelveId.toString(),
+                row: numRow.toString(),
+                column: numColumn.toString()
+              }
+            }
+        );
+
+        // 显示模态框并更新货物信息
+        if (response.data.code === 200 && response.data.data) {
+          this.cargoInfo = response.data.data;
+        } else {
+          this.cargoInfo = null;
+        }
+        this.showModal = true;
+      } catch (error) {
+        console.error("Failed to fetch cargo data:", error);
+        this.cargoInfo = null;
+        this.showModal = true;
+      }
     },
     async selectShelf(index) {
       this.selectedShelfIndex = index;
@@ -218,5 +269,32 @@ export default {
 .compartment:hover {
   transform: scale(1.1);
   background-color: lightgray;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 90%;
+  max-width: 600px;
+}
+
+.close {
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
 }
 </style>
