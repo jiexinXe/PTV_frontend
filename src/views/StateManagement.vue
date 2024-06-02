@@ -12,22 +12,22 @@
             <th>数量</th>
             <th>单价</th>
             <th>供应商</th>
-            <th>位置</th>
             <th>入库时间</th>
             <th>状态</th>
+            <th>操作</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="cargo in paginatedCargoInfoList" :key="cargo.cid">
             <td>{{ cargo.cid }}</td>
             <td>{{ cargo.name }}</td>
-            <td>{{ cargo.category }}</td>
+            <td>{{ categoryMap[cargo.category] || '未知类别' }}</td>
             <td>{{ cargo.num }}</td>
             <td>{{ cargo.price }}</td>
             <td>{{ cargo.supplier }}</td>
-            <td>{{ cargo.location }}</td>
             <td>{{ formatDate(cargo.enterTime) }}</td>
             <td>{{ stateMap[cargo.status] || '未知状态' }}</td>
+            <td><button @click="viewDetails(cargo)" class="view-btn">查询</button></td>
           </tr>
           </tbody>
         </table>
@@ -44,20 +44,20 @@
       </el-pagination>
     </Layout>
 
-    <!-- 编辑状态模态框 -->
-    <div v-if="showEditState" class="modal">
+    <!-- 详情模态框 -->
+    <div v-if="showModal" class="modal">
       <div class="modal-content">
-        <span class="close" @click="showEditState = false">&times;</span>
-        <h3>编辑状态</h3>
-        <form @submit.prevent="updateState">
-          <label for="name">状态名称:</label>
-          <input id="name" v-model="editingState.name" required>
-
-          <label for="description">描述:</label>
-          <textarea id="description" v-model="editingState.description"></textarea>
-
-          <button type="submit">保存修改</button>
-        </form>
+        <span class="close" @click="showModal = false">&times;</span>
+        <h3>货物详情</h3>
+        <p><strong>货物编号:</strong> {{ selectedCargo.cid }}</p>
+        <p><strong>货物名称:</strong> {{ selectedCargo.name }}</p>
+        <p><strong>类别:</strong> {{ categoryMap[selectedCargo.category] || '未知类别' }}</p>
+        <p><strong>数量:</strong> {{ selectedCargo.num }}</p>
+        <p><strong>单价:</strong> {{ selectedCargo.price }}</p>
+        <p><strong>供应商:</strong> {{ selectedCargo.supplier }}</p>
+        <p><strong>入库时间:</strong> {{ formatDate(selectedCargo.enterTime) }}</p>
+        <p><strong class="highlight">当前位置:</strong> {{ stateMap[selectedCargo.status] || '未知状态' }}</p>
+        <p><strong class="highlight">当前状态:</strong> 良好</p>
       </div>
     </div>
   </div>
@@ -77,14 +77,24 @@ export default {
       cargoInfoList: [],
       stateMap: {
         0: '审核中',
-        1: '订单审查中',
+        1: '审核完成',
         2: '小车运输中',
         3: '货架运输中',
-        4: '入库完成',
+        4: '已入库',
         5: '已取出'
       },
-      showEditState: false,
-      editingState: {},
+      categoryMap: {
+        1: '生活用品',
+        2: '电子产品',
+        3: '数码产品',
+        4: '运动户外',
+        5: '服装鞋帽',
+        6: '办公产品',
+        7: '食品',
+        8: '垃圾'
+      },
+      showModal: false,
+      selectedCargo: {},
       currentPage: 1,
       pageSize: 10,
       searchQuery: '' // 添加搜索查询
@@ -122,46 +132,9 @@ export default {
         console.error('Error fetching cargo info:', error);
       }
     },
-    editState(state) {
-      this.editingState = { ...state };
-      this.showEditState = true;
-    },
-    async updateState() {
-      try {
-        const response = await axios.post('http://localhost:8082/state/update', this.editingState, {
-          headers: {
-            Authorization: this.token // 添加 Authorization 头
-          }
-        });
-        if (response.data.code === 200) {
-          console.log('State updated successfully:', response.data);
-          this.fetchCargoInfo(); // Reload the states list to reflect the update
-          this.showEditState = false; // Close the modal after successful update
-        } else {
-          console.error('Failed to update state:', response.data.message);
-        }
-      } catch (error) {
-        console.error('Error updating state:', error);
-      }
-    },
-    async deleteState(id) {
-      if (confirm('确定要删除这个状态吗？')) {
-        try {
-          const response = await axios.delete(`http://localhost:8082/state/delete?id=${id}`, {
-            headers: {
-              Authorization: this.token // 添加 Authorization 头
-            }
-          });
-          if (response.data.code === 200) {
-            console.log('State deleted successfully:', response.data);
-            this.fetchCargoInfo(); // Reload the states list to reflect the deletion
-          } else {
-            console.error('Failed to delete state:', response.data.message);
-          }
-        } catch (error) {
-          console.error('Error deleting state:', error);
-        }
-      }
+    viewDetails(cargo) {
+      this.selectedCargo = cargo;
+      this.showModal = true;
     },
     handleSizeChange(val) {
       this.pageSize = val;
@@ -197,22 +170,13 @@ export default {
   text-align: left;
 }
 
-.edit-btn, .delete-btn {
+.view-btn {
   width: 80px;
   padding: 5px 10px;
   border: none;
   border-radius: 3px;
   cursor: pointer;
-  margin-right: 5px;
-}
-
-.edit-btn {
-  background-color: #007BFF;
-  color: white;
-}
-
-.delete-btn {
-  background-color: #f44336;
+  background-color: #4CAF50;
   color: white;
 }
 
@@ -255,63 +219,8 @@ export default {
   cursor: pointer;
 }
 
-.state-details {
-  margin-bottom: 20px;
-}
-
-.state-details p {
-  margin: 5px 0;
-}
-
-.approval-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.approval-buttons button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.approval-buttons button:first-child {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.approval-buttons button:last-child {
-  background-color: #f44336;
-  color: white;
-}
-
-form > label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-form > input, form > select, form > textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 10px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-form > button {
-  width: 100%;
-  background-color: #4CAF50;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-form > button:hover {
-  background-color: #45a049;
+.highlight {
+  font-weight: bold;
+  color: #007BFF; /* 蓝色 */
 }
 </style>
