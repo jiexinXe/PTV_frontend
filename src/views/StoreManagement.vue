@@ -2,198 +2,119 @@
   <div class="store-management">
     <Layout>
       <h2 class="store-list-title">存储列表</h2>
-      <div class="actions">
-        <button class="add-store-btn" @click="showAddStore = true">新增存储</button>
-        <input type="text" v-model="searchQuery" placeholder="搜索存储名称..." class="search-input">
-      </div>
       <div class="stores-list">
         <table>
           <thead>
           <tr>
-            <th>存储编号</th>
-            <th>存储名称</th>
-            <th>容量</th>
+            <th>货物编号</th>
+            <th>货物名称</th>
+            <th>类别</th>
+            <th>数量</th>
+            <th>单价</th>
+            <th>供应商</th>
             <th>位置</th>
-            <th>操作</th>
+            <th>入库时间</th>
+            <th>状态</th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="store in filteredStores" :key="store.sid">
-            <td>{{ store.sid }}</td>
-            <td>{{ store.name }}</td>
-            <td>{{ store.capacity }}</td>
-            <td>{{ store.location }}</td>
-            <td>
-              <button @click="editStore(store)" class="edit-btn">编辑</button>
-              <button @click="deleteStore(store.sid)" class="delete-btn">删除</button>
-            </td>
+          <tr v-for="cargo in paginatedCargoInfoList" :key="cargo.cid">
+            <td>{{ cargo.cid }}</td>
+            <td>{{ cargo.name }}</td>
+            <td>{{ cargo.category }}</td>
+            <td>{{ cargo.num }}</td>
+            <td>{{ cargo.price }}</td>
+            <td>{{ cargo.supplier }}</td>
+            <td>{{ cargo.location }}</td>
+            <td>{{ formatDate(cargo.enterTime) }}</td>
+            <td>{{ stateMap[cargo.status] || '未知状态' }}</td>
           </tr>
           </tbody>
         </table>
       </div>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 20, 50]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="cargoInfoList.length"
+      >
+      </el-pagination>
     </Layout>
-    <!-- 新增存储模态框 -->
-    <div v-if="showAddStore" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showAddStore = false">&times;</span>
-        <h3>新增存储</h3>
-        <form @submit.prevent="addStore">
-          <label for="sid">存储编号:</label>
-          <input id="sid" v-model="newStore.sid" required>
-
-          <label for="name">存储名称:</label>
-          <input id="name" v-model="newStore.name" required>
-
-          <label for="capacity">存储容量:</label>
-          <input id="capacity" type="number" v-model="newStore.capacity" required>
-
-          <label for="location">存储位置:</label>
-          <input id="location" v-model="newStore.location" required>
-
-          <button type="submit">提交</button>
-        </form>
-      </div>
-    </div>
-    <!-- 编辑存储模态框 -->
-    <div v-if="showModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showModal = false">&times;</span>
-        <form @submit.prevent="updateStore">
-          <label for="sid">存储编号:</label>
-          <input type="text" id="sid" v-model="editingStore.sid" disabled style="width: 100%;">
-          <label for="name">存储名称:</label>
-          <input type="text" id="name" v-model="editingStore.name" style="width: 100%;">
-          <label for="capacity">存储容量:</label>
-          <input type="text" id="capacity" v-model="editingStore.capacity" style="width: 100%;">
-          <label for="location">存储位置:</label>
-          <input type="text" id="location" v-model="editingStore.location" style="width: 100%;">
-          <button type="submit" style="width: 100%;">保存修改</button>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
-import service from '../utils/axios'; // 引入带有拦截器的axios实例
 import Layout from "@/components/layout.vue";
-import { reactive, ref, onMounted, computed } from 'vue';
-import { useRouter } from "vue-router/composables";
+import { mapGetters } from 'vuex';
+import axios from 'axios';
 
 export default {
-  components: { Layout },
-  setup() {
-    const stores = ref([]);
-    const showModal = ref(false);
-    const showAddStore = ref(false);
-    const searchQuery = ref('');
-    const editingStore = reactive({
-      sid: '',
-      name: '',
-      capacity: '',
-      location: ''
-    });
-
-    const newStore = reactive({
-      sid: '',
-      name: '',
-      capacity: '',
-      location: ''
-    });
-
-    const fetchStores = async () => {
-      try {
-        const response = await service.get('http://localhost:8082/store/list');
-        stores.value = response.data.data.StoreList;
-      } catch (error) {
-        console.error('Error fetching stores:', error);
-      }
-    };
-
-    onMounted(() => {
-      fetchStores();
-    });
-
-    const editStore = (store) => {
-      Object.assign(editingStore, store);
-      showModal.value = true;
-    };
-
-    const deleteStore = async (sid) => {
-      if (confirm('确定要删除这条存储信息吗？')) {
-        try {
-          const response = await service.delete(`http://localhost:8082/store/delete?id=${sid}`);
-          if (response.data.code === 200) {
-            fetchStores();
-            alert('删除成功');
-          } else {
-            console.error('Failed to delete store:', response.data.message);
-            alert('删除失败');
-          }
-        } catch (error) {
-          console.error('Error deleting store:', error);
-          alert('删除时出现错误');
-        }
-      }
-    };
-
-    const updateStore = async () => {
-      try {
-        const response = await service.post('http://localhost:8082/store/update', editingStore);
-        if (response.data.code === 200) {
-          console.log('Store updated successfully:', response.data);
-          fetchStores(); // Reload the stores list to reflect the update
-          showModal.value = false; // Close the modal after successful update
-        } else {
-          console.error('Failed to update store:', response.data.message);
-        }
-      } catch (error) {
-        console.error('Error updating store:', error);
-      }
-    };
-
-    const addStore = async () => {
-      try {
-        const response = await service.post('http://localhost:8082/store/add', newStore);
-        if (response.data.code === 200) {
-          console.log('Store added successfully:', response.data);
-          fetchStores(); // Reload the stores list to reflect the new store
-          showAddStore.value = false; // Close the modal after successful addition
-          Object.assign(newStore, {
-            sid: '',
-            name: '',
-            capacity: '',
-            location: ''
-          });
-        } else {
-          console.error('Failed to add store:', response.data.message);
-        }
-      } catch (error) {
-        console.error('Error adding store:', error);
-      }
-    };
-
-    const filteredStores = computed(() => {
-      return stores.value.filter(store =>
-          store.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-      );
-    });
-
+  components: {
+    Layout
+  },
+  data() {
     return {
-      stores,
-      showModal,
-      showAddStore,
-      newStore,
-      editingStore,
-      editStore,
-      deleteStore,
-      updateStore,
-      addStore,
-      searchQuery,
-      filteredStores
+      cargoInfoList: [],
+      stateMap: {
+        0: '审核中',
+        1: '订单审查中',
+        2: '小车运输中',
+        3: '货架运输中',
+        4: '入库完成',
+        5: '已取出'
+      },
+      currentPage: 1,
+      pageSize: 10,
+      searchQuery: '' // 添加搜索查询
     };
+  },
+  computed: {
+    ...mapGetters(['userId', 'token']), // 确保你的 Vuex store 中有一个 getter 用于获取 token
+    filteredCargoInfoList() {
+      return this.cargoInfoList.filter(info =>
+          info.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+    paginatedCargoInfoList() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredCargoInfoList.slice(start, end);
+    }
+  },
+  mounted() {
+    this.fetchCargoInfo();
+  },
+  methods: {
+    async fetchCargoInfo() {
+      try {
+        const response = await axios.get('http://localhost:8082/cargo/list/userid', {
+          headers: {
+            Authorization: `${this.token}`
+          },
+          params: {
+            userid: this.userId
+          }
+        });
+        this.cargoInfoList = response.data.data.CargoList;
+      } catch (error) {
+        console.error('Error fetching cargo info:', error);
+      }
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+    },
+    formatDate(date) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      return new Date(date).toLocaleDateString('zh-CN', options);
+    }
   }
-}
+};
 </script>
 
 <style>
@@ -203,36 +124,6 @@ export default {
 
 .store-list-title {
   margin-bottom: 15px;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.add-store-btn, .search-input {
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid #ccc;
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.add-store-btn {
-  border-color: #4CAF50;
-  width: 100px;
-}
-
-.search-input {
-  width: 150px;
-  margin-left: 20px;
-  padding: 0 10px;
-  background-color: white;
-  color: black;
-  border-color: #ccc;
 }
 
 .stores-list table {
@@ -271,15 +162,19 @@ export default {
   height: 100%;
   overflow: auto;
   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
   padding: 20px;
-  border: 1px solid #888;
+  border-radius: 10px;
   width: 40%; /* Could be more or less, depending on screen size */
-  border-radius: 10px; /* Rounded corners */
+  max-width: 600px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
 }
 
 .close {
@@ -302,7 +197,7 @@ form > label {
   margin-bottom: 5px;
 }
 
-form > input, form > select {
+form > input, form > select, form > textarea {
   width: 100%;
   padding: 8px;
   margin: 10px 0;
