@@ -17,7 +17,7 @@
         <input type="text" id="price" v-model="cargo.price" style="width: 100%;">
         <label htmlFor="supplier">供应商名称:</label>
         <input type="text" id="supplier" v-model="cargo.supplier" style="width: 100%;">
-        <label htmlFor="location">货物位置:</label>
+        <label htmlFor="location">货源地:</label>
         <input type="text" id="location" v-model="cargo.location" style="width: 100%;">
         <button type="submit" style="width: 100%;">添加货物</button>
       </form>

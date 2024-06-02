@@ -13,7 +13,7 @@
             <th>货物编号</th>
             <th>货物名称</th>
             <th>数量</th>
-            <th>仓库位置</th>
+            <th>货源地</th>
             <th>操作</th>
           </tr>
           </thead>

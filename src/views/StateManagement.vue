@@ -56,8 +56,8 @@
         <p><strong>单价:</strong> {{ selectedCargo.price }}</p>
         <p><strong>供应商:</strong> {{ selectedCargo.supplier }}</p>
         <p><strong>入库时间:</strong> {{ formatDate(selectedCargo.enterTime) }}</p>
-        <p><strong class="highlight">当前位置:</strong> {{ stateMap[selectedCargo.status] || '未知状态' }}</p>
-        <p><strong class="highlight">当前状态:</strong> 良好</p>
+        <p><strong class="highlight">当前流程情况:</strong> {{ stateMap[selectedCargo.status] || '未知状态' }}</p>
+        <p><strong class="highlight">当前货物状态:</strong> 良好</p>
       </div>
     </div>
   </div>
@@ -76,8 +76,8 @@ export default {
     return {
       cargoInfoList: [],
       stateMap: {
-        0: '审核中',
-        1: '审核完成',
+        0: '货物核验中',
+        1: '等待订单审批',
         2: '小车运输中',
         3: '货架运输中',
         4: '已入库',
@@ -127,6 +127,7 @@ export default {
             userid: this.userId
           }
         });
+        console.log(response.data);
         this.cargoInfoList = response.data.data.CargoList;
       } catch (error) {
         console.error('Error fetching cargo info:', error);

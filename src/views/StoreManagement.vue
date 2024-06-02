@@ -21,11 +21,11 @@
           <tr v-for="cargo in paginatedCargoInfoList" :key="cargo.cid">
             <td>{{ cargo.cid }}</td>
             <td>{{ cargo.name }}</td>
-            <td>{{ cargo.category }}</td>
+            <td>{{ categoryMap[cargo.category] || '未知类别' }}</td>
             <td>{{ cargo.num }}</td>
             <td>{{ cargo.price }}</td>
             <td>{{ cargo.supplier }}</td>
-            <td>{{ cargo.location }}</td>
+            <td>{{ formatLocation(cargo.shelve_location) }}</td>
             <td>{{ formatDate(cargo.enterTime) }}</td>
             <td>{{ stateMap[cargo.status] || '未知状态' }}</td>
           </tr>
@@ -36,7 +36,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[5, 10, 20, 50]"
+          :page-sizes="[5, 10, 15, 20]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="cargoInfoList.length"
@@ -65,6 +65,16 @@ export default {
         3: '货架运输中',
         4: '入库完成',
         5: '已取出'
+      },
+      categoryMap: {
+        1: '生活用品',
+        2: '电子产品',
+        3: '数码产品',
+        4: '运动户外',
+        5: '服装鞋帽',
+        6: '办公产品',
+        7: '食品',
+        8: '垃圾'
       },
       currentPage: 1,
       pageSize: 10,
@@ -102,6 +112,12 @@ export default {
       } catch (error) {
         console.error('Error fetching cargo info:', error);
       }
+    },
+    formatLocation(location) {
+      if (!location) {
+        return '未存储';
+      }
+      return `W1 ${location}`;
     },
     handleSizeChange(val) {
       this.pageSize = val;
