@@ -13,7 +13,6 @@ import ShelfManagement from '../views/ShelfManagement.vue' // 新增
 import StateManagement from "@/views/StateManagement.vue";
 
 import User from '../views/user.vue'
-import Header from '../components/header.vue'
 import AddCargo from '../views/addCargo.vue'
 
 Vue.use(VueRouter)
