@@ -7,7 +7,8 @@
         <input type="text" v-model="searchQuery" placeholder="搜索货物名称..." class="search-input">
       </div>
       <div class="cargos-list">
-        <table>
+        <Loader v-if="loading" />
+        <table v-else>
           <thead>
           <tr>
             <th>货物编号</th>
@@ -22,7 +23,7 @@
             <td>{{ cargo.cid }}</td>
             <td>{{ cargo.name }}</td>
             <td>{{ cargo.num }}</td>
-            <td>{{ cargo.location }}</td>
+            <td>{{ formatLocation(cargo.location) }}</td>
             <td>
               <button @click="editCargo(cargo)" class="edit-btn">编辑</button>
               <button @click="deleteCargo(cargo.cid, cargo.num)" class="delete-btn">删除</button>
@@ -77,13 +78,15 @@
 <script>
 import service from '../utils/axios'; // 引入带有拦截器的axios实例
 import Layout from "@/components/layout.vue";
+import Loader from "@/components/Loader.vue"; // 引用加载组件
 import { mapGetters } from 'vuex';
 
 export default {
-  components: { Layout },
+  components: { Layout, Loader },
   data() {
     return {
       cargos: [],
+      loading: true, // 添加loading状态
       showModal: false,
       categories: [],
       selectedCategoryId: null,
@@ -121,9 +124,15 @@ export default {
     async fetchCargos() {
       try {
         const response = await service.get(`http://localhost:8082/cargo/list/userid?userid=${this.userId}`);
-        this.cargos = response.data.data.CargoList;
+        if (response.data && response.data.data && response.data.data.CargoList.length > 0) {
+          this.cargos = response.data.data.CargoList;
+          this.loading = false; // 数据加载成功，设置loading为false
+        } else {
+          setTimeout(this.fetchCargos, 2000); // 数据为空，2秒后重试
+        }
       } catch (error) {
         console.error('Error fetching cargos:', error);
+        setTimeout(this.fetchCargos, 2000); // 获取数据失败，2秒后重试
       }
     },
     async fetchCategories() {
@@ -198,15 +207,18 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentPage = val;
+    },
+    formatLocation(location) {
+      return location ? `${location}` : '未存储';
     }
   }
 };
-
 </script>
 
 <style>
 .cargo-management {
   padding: 0px;
+  position: relative;
 }
 
 .cargo-list-title {
@@ -241,6 +253,10 @@ export default {
   background-color: white; /* 输入框的背景颜色 */
   color: black; /* 输入文字颜色 */
   border-color: #ccc; /* 边框颜色 */
+}
+
+.cargos-list {
+  position: relative; /* 设置position为relative */
 }
 
 .cargos-list table {
@@ -313,4 +329,18 @@ export default {
   text-align: center;
 }
 
+.loader {
+  --duration: 3s;
+  --primary: rgba(39, 94, 254, 1);
+  --primary-light: #2f71ff;
+  --primary-rgba: rgba(39, 94, 254, 0);
+  width: 140px; /* 70% of 200px */
+  height: 224px; /* 70% of 320px */
+  position: absolute;
+  top: 60%; /* 调整加载组件的位置 */
+  left: 50%;
+  transform: translate(-50%, -5%);
+  transform-style: preserve-3d;
+}
 </style>
+

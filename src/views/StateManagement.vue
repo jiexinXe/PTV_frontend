@@ -3,7 +3,8 @@
     <Layout>
       <h2 class="state-list-title">状态列表</h2>
       <div class="states-list">
-        <table>
+        <Loader v-if="loading" />
+        <table v-else>
           <thead>
           <tr>
             <th>货物编号</th>
@@ -65,16 +66,19 @@
 
 <script>
 import Layout from "@/components/layout.vue";
+import Loader from "@/components/Loader.vue"; // 引用加载组件
 import { mapGetters } from 'vuex';
 import axios from 'axios';
 
 export default {
   components: {
-    Layout
+    Layout,
+    Loader
   },
   data() {
     return {
       cargoInfoList: [],
+      loading: true, // 添加loading状态
       stateMap: {
         0: '货物核验中',
         1: '等待订单审批',
@@ -129,8 +133,10 @@ export default {
         });
         console.log(response.data);
         this.cargoInfoList = response.data.data.CargoList;
+        this.loading = false; // 数据加载成功，设置loading为false
       } catch (error) {
         console.error('Error fetching cargo info:', error);
+        setTimeout(this.fetchCargoInfo, 2000); // 轮询，每隔2秒尝试一次
       }
     },
     viewDetails(cargo) {
@@ -154,6 +160,7 @@ export default {
 <style>
 .state-management {
   padding: 0px;
+  position: relative;
 }
 
 .state-list-title {
@@ -223,5 +230,19 @@ export default {
 .highlight {
   font-weight: bold;
   color: #007BFF; /* 蓝色 */
+}
+
+.loader {
+  --duration: 3s;
+  --primary: rgba(39, 94, 254, 1);
+  --primary-light: #2f71ff;
+  --primary-rgba: rgba(39, 94, 254, 0);
+  width: 140px; /* 70% of 200px */
+  height: 224px; /* 70% of 320px */
+  position: absolute;
+  top: 65%; /* 将加载组件下移 */
+  left: 50%;
+  transform: translate(-50%, -5%);
+  transform-style: preserve-3d;
 }
 </style>

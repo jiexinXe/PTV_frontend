@@ -4,7 +4,8 @@
       <h2 class="order-list-title">订单列表</h2>
       <button class="add-order-btn" @click="showAddOrder = true">新增订单</button>
       <div class="orders-list">
-        <table>
+        <Loader v-if="loading" />
+        <table v-else>
           <thead>
           <tr>
             <th>订单编号</th>
@@ -102,19 +103,21 @@
   </div>
 </template>
 
-
 <script>
 import Layout from "@/components/layout.vue";
+import Loader from "@/components/Loader.vue"; // 引用加载组件
 import { mapGetters } from 'vuex';
 import axios from 'axios';
 
 export default {
   components: {
-    Layout
+    Layout,
+    Loader
   },
   data() {
     return {
       orders: [],
+      loading: true, // 添加loading状态
       showAddOrder: false,
       showApproval: false,
       currentOrder: {},
@@ -159,8 +162,10 @@ export default {
         });
         console.log(response.data.data);
         this.orders = response.data.data;
+        this.loading = false; // 数据加载成功，设置loading为false
       } catch (error) {
         console.error('Error fetching orders:', error);
+        setTimeout(this.fetchOrders, 2000); // 轮询，每隔2秒尝试一次
       }
     },
     addOrder() {
@@ -208,6 +213,7 @@ export default {
 <style>
 .order-management {
   padding: 0px;
+  position: relative;
 }
 
 .order-list-title {
@@ -357,5 +363,19 @@ form > button {
 
 form > button:hover {
   background-color: #45a049;
+}
+
+.loader {
+  --duration: 3s;
+  --primary: rgba(39, 94, 254, 1);
+  --primary-light: #2f71ff;
+  --primary-rgba: rgba(39, 94, 254, 0);
+  width: 140px; /* 70% of 200px */
+  height: 224px; /* 70% of 320px */
+  position: absolute;
+  top: 65%; /* 将加载组件下移 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
 }
 </style>
