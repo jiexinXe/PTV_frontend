@@ -21,7 +21,7 @@
                   v-for="(compartment, compartmentIndex) in getLeftCompartments(selectedShelfIndex)"
                   :key="compartmentIndex"
                   class="compartment"
-                  :class="{ filled: compartment.filled, yellow: compartment.username }"
+                  :class="{ filled: compartment.filled, red: compartment.username }"
                   @click="showCargoInfo(selectedShelfIndex, compartmentIndex)"
               >
                 {{ compartment.id }}
@@ -32,7 +32,7 @@
                   v-for="(compartment, compartmentIndex) in getRightCompartments(selectedShelfIndex)"
                   :key="compartmentIndex"
                   class="compartment"
-                  :class="{ filled: compartment.filled, yellow: compartment.username }"
+                  :class="{ filled: compartment.filled, red: compartment.username }"
                   @click="showCargoInfo(selectedShelfIndex, compartmentIndex + 100)"
               >
                 {{ compartment.id }}
@@ -205,9 +205,6 @@ export default {
           const compartmentIndex = (item.numColumn - 1) * 10 + (item.numRow - 1);
           this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'filled', true);
           
-
-   
-          
           if (item.states&&item.states!=='0') {
             
             this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'username', true);
@@ -306,8 +303,8 @@ export default {
   color: white;
 }
 
-.compartment.yellow {
-  background-color: yellow;
+.compartment.red {
+  background-color: red;
   color: black;
 }
 
