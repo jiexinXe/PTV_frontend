@@ -21,7 +21,7 @@
                   v-for="(compartment, compartmentIndex) in getLeftCompartments(selectedShelfIndex)"
                   :key="compartmentIndex"
                   class="compartment"
-                  :class="{ filled: compartment.filled }"
+                  :class="{ filled: compartment.filled, yellow: compartment.username }"
                   @click="showCargoInfo(selectedShelfIndex, compartmentIndex)"
               >
                 {{ compartment.id }}
@@ -32,7 +32,7 @@
                   v-for="(compartment, compartmentIndex) in getRightCompartments(selectedShelfIndex)"
                   :key="compartmentIndex"
                   class="compartment"
-                  :class="{ filled: compartment.filled }"
+                  :class="{ filled: compartment.filled, yellow: compartment.username }"
                   @click="showCargoInfo(selectedShelfIndex, compartmentIndex + 100)"
               >
                 {{ compartment.id }}
@@ -59,6 +59,7 @@
           <p><strong>位置:</strong> {{ cargoInfo.location }}</p>
           <p><strong>用户ID:</strong> {{ cargoInfo.userid }}</p>
           <p><strong>状态:</strong> {{ cargoInfo.status }}</p>
+          <button v-if="cargoInfo.username" @click="deleteCargo(cargoInfo.shelveId,cargoInfo.numColumn,cargoInfo.numRow)">同意出库</button>
         </div>
         <div v-else>
           <p>期待您的货物</p>
@@ -72,7 +73,7 @@
 import axios from 'axios';
 import Layout from "@/components/layout.vue";
 import { mapGetters } from 'vuex';
-
+import service from '../utils/axios'; // 引入带有拦截器的axios实例
 export default {
   components: {
     Layout
@@ -99,10 +100,35 @@ export default {
       for (let i = 0; i < this.rows; i++) {
         const shelf = [];
         for (let j = 0; j < this.columns * this.levels; j++) {
-          shelf.push({ id: `S${i + 1}-C${j + 1}`, filled: false });
+          shelf.push({ id: `S${i + 1}-C${j + 1}`, filled: false, username: false });
         }
         this.warehouse.push(shelf);
       }
+    },
+    async deleteCargo(shelveId,numColumn,numRow) {
+      
+      
+        try {
+          
+         
+          const response = await service.delete(`http://localhost:8082/cargo/delete?warehouse_id=${1}&shelve_id=${shelveId}&row=${numRow}&column=${numColumn}`);
+          console.log(response)
+          if (response.data.code === 200) {
+            
+            this.initializeWarehouse();
+            const compartmentIndex = (numColumn - 1) * 10 + (numRow - 1);
+            this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'filled', false);
+            this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'username', false);
+            alert('删除成功');
+          } else {
+            console.error('Failed to delete cargo:', response.data.message);
+            alert('删除失败');
+          }
+        } catch (error) {
+          console.error('Error deleting cargo:', error);
+          alert('删除时出现错误');
+        }
+      
     },
     async showCargoInfo(shelfIndex, compartmentIndex) {
       const shelveId = shelfIndex + 1;
@@ -127,6 +153,10 @@ export default {
         // 显示模态框并更新货物信息
         if (response.data.code === 200 && response.data.data) {
           this.cargoInfo = response.data.data;
+          this.cargoInfo.username = this.warehouse[shelfIndex][compartmentIndex].username;
+          this.cargoInfo.shelveId = shelveId;
+          this.cargoInfo.numColumn =numColumn ;
+          this.cargoInfo.numRow = numRow;
         } else {
           this.cargoInfo = null;
         }
@@ -163,16 +193,25 @@ export default {
       }
     },
     updateShelfData(shelfData) {
-      // 清空当前选中的货架的 filled 状态
+      // 清空当前选中的货架的 filled 状态和 username
       this.warehouse[this.selectedShelfIndex].forEach(compartment => {
         compartment.filled = false;
+        compartment.username = null;
       });
 
-      // 更新货架信息，根据 cargoId 设置 filled 状态
+      // 更新货架信息，根据 cargoId 和 username 设置 filled 和颜色状态
       shelfData.forEach(item => {
-        if (item.cargoId) {
+        if (item.cargoId!=='0'&&item.cargoId) {
           const compartmentIndex = (item.numColumn - 1) * 10 + (item.numRow - 1);
           this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'filled', true);
+          
+
+   
+          
+          if (item.states&&item.states!=='0') {
+            
+            this.$set(this.warehouse[this.selectedShelfIndex][compartmentIndex], 'username', true);
+          }
         }
       });
     },
@@ -181,7 +220,8 @@ export default {
     },
     getRightCompartments(shelfIndex) {
       return this.warehouse[shelfIndex].slice(100, 200); // 右半部分
-    }
+    },
+    
   }
 };
 </script>
@@ -264,6 +304,11 @@ export default {
 .compartment.filled {
   background-color: blue;
   color: white;
+}
+
+.compartment.yellow {
+  background-color: yellow;
+  color: black;
 }
 
 .compartment:hover {

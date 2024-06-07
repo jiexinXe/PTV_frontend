@@ -16,7 +16,7 @@ export function userLogin (data) {
   axios.defaults.withCredentials = false;// Cookie跨域
   return axios.post('/login?'+ Qs.stringify(data), {
    
-  })
+  })  
 }
 
 

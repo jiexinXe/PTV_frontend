@@ -142,12 +142,16 @@ export default {
       this.showModal = true;
     },
     async deleteCargo(cid, num) {
+      
       if (confirm('确定要删除这条货物信息吗？')) {
         try {
-          const response = await service.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+          const userInfo = this.$store.getters.userInfo
+          console.log(userInfo)
+          const response = await service.post(`http://localhost:8082/cargo/remove?cid=${cid}&num=${num}&username=${userInfo.username}`);
+          console.log(response)
           if (response.data.code === 200) {
             this.fetchCargos();
-            alert('删除成功');
+            alert('提取成功，等待审核');
           } else {
             console.error('Failed to delete cargo:', response.data.message);
             alert('删除失败');
@@ -179,10 +183,12 @@ export default {
       }
       if (confirm('确定要执行出库操作吗？')) {
         try {
-          const response = await service.delete(`http://localhost:8082/cargo/delete?id=${cid}&num=${num}`);
+          const userInfo = this.$store.getters.userInfo
+          console.log(userInfo)
+          const response = await service.post(`http://localhost:8082/cargo/remove?cid=${cid}&num=${num}&username=${userInfo.username}`);
           if (response.data.code === 200) {
             this.fetchCargos(); // 重新获取数据以更新视图
-            alert('出库成功');
+            alert('提取成功，等待审核');
           } else {
             alert('出库失败');
             console.error('出库失败:', response.data.message);
