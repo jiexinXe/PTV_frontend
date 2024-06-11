@@ -69,6 +69,7 @@ import Layout from "@/components/layout.vue";
 import Loader from "@/components/Loader.vue"; // 引用加载组件
 import { mapGetters } from 'vuex';
 import axios from 'axios';
+import {Message} from "element-ui";
 
 export default {
   components: {
@@ -119,6 +120,7 @@ export default {
   },
   mounted() {
     this.fetchCargoInfo();
+    this.setupWebSocket();
   },
   methods: {
     async fetchCargoInfo() {
@@ -138,6 +140,26 @@ export default {
         console.error('Error fetching cargo info:', error);
         setTimeout(this.fetchCargoInfo, 2000); // 轮询，每隔2秒尝试一次
       }
+    },
+    setupWebSocket() {
+      const ws = new WebSocket('ws://localhost:8082/websocket');
+      ws.onopen = () => {
+        console.log('WebSocket connection established');
+      };
+      ws.onmessage = (event) => {
+        const message = event.data;
+        console.log('Received message:', message);
+        Message(message);
+        if (message === '入库成功') {
+          this.$message.success('入库成功'); // 显示成功消息
+        }
+      };
+      ws.onclose = () => {
+        console.log('WebSocket connection closed');
+      };
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
     },
     viewDetails(cargo) {
       this.selectedCargo = cargo;
