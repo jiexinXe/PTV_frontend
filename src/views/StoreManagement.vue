@@ -26,7 +26,7 @@
             <td>{{ cargo.num }}</td>
             <td>{{ cargo.price }}</td>
             <td>{{ cargo.supplier }}</td>
-            <td>{{ formatLocation(cargo.shelve_location) }}</td>
+            <td @click="showLocation(cargo.shelve_location)" style="cursor: pointer;">{{ formatLocation(cargo.shelve_location) }}</td>
             <td>{{ formatDate(cargo.enterTime) }}</td>
             <td>{{ stateMap[cargo.status] || '未知状态' }}</td>
           </tr>
@@ -43,6 +43,13 @@
           :total="cargoInfoList.length"
       >
       </el-pagination>
+
+      <div v-if="showModal" class="modal" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <span class="close" @click="closeModal">&times;</span>
+          <p class="location-info">{{ currentLocation }}</p>
+        </div>
+      </div>
     </Layout>
   </div>
 </template>
@@ -82,7 +89,9 @@ export default {
       },
       currentPage: 1,
       pageSize: 10,
-      searchQuery: '' // 添加搜索查询
+      searchQuery: '', // 添加搜索查询
+      showModal: false,
+      currentLocation: ''
     };
   },
   computed: {
@@ -134,6 +143,13 @@ export default {
     formatDate(date) {
       const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
       return new Date(date).toLocaleDateString('zh-CN', options);
+    },
+    showLocation(location) {
+      this.currentLocation = location;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
     }
   }
 };
@@ -158,6 +174,13 @@ export default {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stores-list th:nth-child(7), .stores-list td:nth-child(7) {
+  max-width: 150px; /* 根据需要调整宽度 */
 }
 
 .edit-btn, .delete-btn {
@@ -184,7 +207,7 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -194,10 +217,15 @@ export default {
   background-color: #fefefe;
   padding: 20px;
   border-radius: 10px;
-  width: 40%; /* Could be more or less, depending on screen size */
-  max-width: 600px;
+  width: 60%; /* 调整宽度 */
+  max-width: 800px; /* 调整最大宽度 */
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   position: relative;
+}
+
+.location-info {
+  word-wrap: break-word; /* 添加换行 */
+  white-space: pre-wrap; /* 保持空格和换行 */
 }
 
 .close {
@@ -250,10 +278,10 @@ form > button:hover {
   --primary: rgba(39, 94, 254, 1);
   --primary-light: #2f71ff;
   --primary-rgba: rgba(39, 94, 254, 0);
-  width: 140px; /* 70% of 200px */
-  height: 224px; /* 70% of 320px */
+  width: 140px;
+  height: 224px;
   position: absolute;
-  top: 65%; /* 将加载组件下移 */
+  top: 65%;
   left: 50%;
   transform: translate(-50%, -5%);
   transform-style: preserve-3d;
